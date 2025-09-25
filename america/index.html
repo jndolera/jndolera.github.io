@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Organizador de Partidos de Pádel</title>
+<title>Monta tu Torneo de Pádel - Americano 8J 4R - JDP v11</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 <style>
   :root {
@@ -87,6 +87,32 @@
     padding: 25px;
   }
 
+  /* Instrucciones encima de inputs torneo */
+  .instructions {
+    background: var(--light);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    border-left: 5px solid var(--primary);
+  }
+
+  .instructions h2 {
+    color: var(--primary);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .instructions ul {
+    margin-left: 20px;
+    line-height: 1.6;
+  }
+
+  .instructions li {
+    margin-bottom: 8px;
+  }
+
   .tournament-info {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -119,31 +145,6 @@
     outline: none;
   }
 
-  .instructions {
-    background: var(--light);
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 25px;
-    border-left: 5px solid var(--primary);
-  }
-
-  .instructions h2 {
-    color: var(--primary);
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .instructions ul {
-    margin-left: 20px;
-    line-height: 1.6;
-  }
-
-  .instructions li {
-    margin-bottom: 8px;
-  }
-
   .input-section {
     display: flex;
     flex-direction: column;
@@ -170,15 +171,15 @@
     width: 100%;
   }
 
-  /* Reduce inputs width by 20% */
+  /* Casillas mitad tamaño */
   .player-inputs input {
-    padding: 10px 12px;
+    padding: 6.4px 8px;
     border-radius: 6px;
     border: 2px solid #ddd;
-    font-size: 1rem;
+    font-size: 0.68rem;
     text-transform: uppercase;
-    max-width: 80%; /* Reduced width */
-    margin: 0 auto; /* Center horizontally */
+    max-width: 48%; /* mitad de tamaño original (80% / 2) */
+    margin: 0 auto;
     display: block;
   }
 
@@ -413,13 +414,23 @@
     <div class="header-content">
       <img src="https://www.murciaclubdetenis.es/wp-content/uploads/2019/10/logo-menu-1.png" alt="Logo Murcia Club de Tenis" />
       <div>
-        <h1>Torneo de Pádel - Americano 8J 4R - JDP</h1>
+        <h1>Monta tu Torneo de Pádel - Americano 8J 4R - JDP</h1>
         <p>Formato americano para 8 jugadores - 4 rondas sin repeticiones</p>
       </div>
     </div>
   </header>
 
   <div class="content">
+
+    <div class="instructions">
+      <h2><i class="fas fa-info-circle"></i> Instrucciones</h2>
+      <ul>
+        <li>Registra el nombre del torneo, la fecha, la hora de inicio y el lugar.</li>
+        <li>Ingresa los nombres de 4 jugadores para Revés y 4 jugadores para Drive.</li>
+        <li>El sistema generará automáticamente 4 rondas de partidos, garantizando que no haya repeticiones entre jugadores.</li>
+      </ul>
+    </div>
+
     <div class="tournament-info">
       <div class="info-group">
         <label for="tournamentName">Nombre del Torneo:</label>
@@ -432,6 +443,10 @@
       <div class="info-group">
         <label for="startTime">Hora de inicio:</label>
         <input type="time" id="startTime" />
+      </div>
+      <div class="info-group">
+        <label for="location">Lugar:</label>
+        <input type="text" id="location" value="RMTC" maxlength="50" />
       </div>
     </div>
 
@@ -462,14 +477,6 @@
           <i class="fas fa-random"></i> Generar Partidos B
         </button>
       </div>
-    </div>
-
-    <div class="instructions">
-      <h2><i class="fas fa-info-circle"></i> Instrucciones</h2>
-      <ul>
-        <li>Ingresa los nombres de 4 jugadores para Revés y 4 para Drive, máximo 10 caracteres cada uno.</li>
-        <li>El sistema organizará 4 rondas de partidos sin repeticiones.</li>        
-      </ul>
     </div>
 
     <!-- Bloque resumen torneo, oculto inicialmente -->
@@ -552,6 +559,8 @@
       const tournamentName = document.getElementById('tournamentName').value.trim() || 'TORNEO SIN NOMBRE';
       const tournamentDateRaw = document.getElementById('tournamentDate').value;
       const startTimeInput = document.getElementById('startTime').value;
+      const locationInput = document.getElementById('location').value.trim() || 'RMTC';
+
       if (!startTimeInput) {
         alert('Por favor, ingresa la hora de inicio.');
         return;
@@ -566,6 +575,7 @@
         ${tournamentName.toUpperCase()}<br/>
         <span>Fecha: ${formattedDate}</span>
         <span>Hora de inicio: ${startTimeInput}</span>
+        <span>Lugar: ${locationInput}</span>
       `;
 
       if (type === 'A') {
@@ -584,7 +594,6 @@
     }
 
     function generateRoundsA(players) {
-      // Rondas y partidos según especificación A
       const rounds = [
         {
           className: "round-1",
@@ -619,7 +628,6 @@
     }
 
     function generateRoundsB(players) {
-      // Rondas y partidos según especificación B (la anterior)
       const rounds = [
         {
           className: "round-1",
@@ -682,7 +690,6 @@
           roundsTableBody.appendChild(tr);
         });
 
-        // Insertar fila separadora gruesa entre rondas excepto después de la última
         if (roundIndex < rounds.length - 1) {
           const separatorRow = document.createElement('tr');
           separatorRow.classList.add('round-separator');
@@ -696,10 +703,10 @@
       document.getElementById('tournamentName').value = '';
       document.getElementById('tournamentDate').value = '';
       document.getElementById('startTime').value = '';
+      document.getElementById('location').value = 'RMTC';
       roundsTableBody.innerHTML = '';
       tournamentSummary.style.display = 'none';
 
-      // Limpiar inputs revés y drive
       const revesInputs = document.querySelectorAll('#revesInputs input');
       const driveInputs = document.querySelectorAll('#driveInputs input');
       revesInputs.forEach(input => input.value = '');
@@ -718,14 +725,12 @@
       }, 3000);
     }
 
-    // Exportar a imagen el contenedor que incluye resumen y tabla
     async function exportToImage() {
       if (tournamentSummary.style.display === 'none') {
         alert('Primero genera los partidos para exportar.');
         return;
       }
       try {
-        // Crear un contenedor temporal para incluir resumen y tabla juntos
         const exportWrapper = document.createElement('div');
         exportWrapper.style.background = 'white';
         exportWrapper.style.padding = '20px';
@@ -734,7 +739,6 @@
         exportWrapper.style.color = 'black';
         exportWrapper.style.fontFamily = 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif';
 
-        // Clonar y agregar resumen torneo (con formato multilinea)
         const summaryClone = tournamentSummary.cloneNode(true);
         summaryClone.style.color = 'black';
         summaryClone.style.background = 'transparent';
@@ -742,7 +746,6 @@
         summaryClone.style.marginBottom = '20px';
         exportWrapper.appendChild(summaryClone);
 
-        // Clonar y agregar tabla de partidos
         const tableClone = exportContainer.querySelector('#roundsTable').cloneNode(true);
         exportWrapper.appendChild(tableClone);
 
@@ -766,7 +769,6 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      // Opcional: valores por defecto vacíos
       const revesInputs = document.querySelectorAll('#revesInputs input');
       const driveInputs = document.querySelectorAll('#driveInputs input');
       revesInputs.forEach((input, i) => input.placeholder = `Revés ${i + 1}`);
@@ -775,9 +777,9 @@
       const today = new Date();
       document.getElementById('tournamentDate').value = today.toISOString().split('T')[0];
       document.getElementById('startTime').value = "10:00";
+      document.getElementById('location').value = "RMTC";
     });
   })();
 </script>
 </body>
-
 </html>

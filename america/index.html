@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Monta tu Torneo de Pádel - Americano 8J 4R - JDP v11</title>
+<title>Monta tu Torneo de Pádel - Americano 8J 4R - JDP v12</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 <style>
   :root {
@@ -164,28 +164,34 @@
     width: 100%;
   }
 
+  /* Espaciado mínimo entre casillas */
   .player-inputs {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
+    gap: 4px 4px; /* 4px vertical y horizontal */
     width: 100%;
   }
 
-  /* Casillas mitad tamaño */
+  /* Casillas reducidas un 20% respecto tamaño previo */
   .player-inputs input {
-    padding: 6.4px 8px;
+    padding: 6.4px 8px; /* 20% menos que 8px 10px */
     border-radius: 6px;
     border: 2px solid #ddd;
-    font-size: 0.68rem;
+    font-size: 0.68rem; /* 20% menos que 0.85rem */
     text-transform: uppercase;
-    max-width: 48%; /* mitad de tamaño original (80% / 2) */
-    margin: 0 auto;
+    max-width: 48%; /* 20% menos que 60% */
+    margin: 0;
     display: block;
   }
 
-  .player-inputs input:focus {
-    border-color: var(--primary);
-    outline: none;
+  /* Fondo azul claro para Revés */
+  #revesInputs input {
+    background-color: #d6eaf8;
+  }
+
+  /* Fondo gris claro para Drive */
+  #driveInputs input {
+    background-color: #f0f0f0;
   }
 
   .players-labels {

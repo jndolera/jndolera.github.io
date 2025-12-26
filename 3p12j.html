@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta property="og:title" content="Monta tu Torneo de Pádel - JDP v16">
+<meta property="og:description" content="Formato americano para 12 jugadores - 4 rondas en 3 pistas">
+<meta property="og:image" content="logormctpadel.png">
+<meta property="og:type" content="website">
+<title>Monta tu Torneo de Pádel - Formato Americano (12 jugadores, 4 rondas, 3 pistas) – JDP v16</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  /* Paleta inspirada en pista de pádel azul */
+  --primary: #0077ff;       /* Azul pista principal */
+  --secondary: #00c46a;     /* Verde neón suave (postes/cesped) */
+  --accent: #ff5c5c;        /* Rojo coral para acciones importantes */
+  --dark: #0b1630;          /* Azul muy oscuro */
+  --light: #f4f7fb;         /* Fondo claro suave */
+  --gray: #9aa4b2;
+
+  /* Colores por ronda - versiones suaves en la misma gama */
+  --round1: #e3f2ff;
+  --round2: #e4f8ef;
+  --round3: #fff4e5;
+  --round4: #fbe6f4;
+}
+
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Fondo tipo pista de pádel moderna */
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  color: var(--dark);
+
+  /* "Césped" verde + "pista" azul con algo de cielo */
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.7) 0, transparent 50%),
+    linear-gradient(135deg, #001637 0%, #0057b8 40%, #00c46a 100%);
+}
+
+/* Tarjeta principal tipo cristal */
+.container {
+  width: 100%;
+  max-width: 1100px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 18px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  margin: 20px 0;
+  backdrop-filter: blur(14px);
+}
+
+/* HEADER */
+header {
+  background: linear-gradient(135deg, #0057b8, #00a3ff);
+  color: white;
+  padding: 20px 24px;
+}
+
+header .header-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+header img {
+  max-height: 80px;
+  width: auto;
+  object-fit: contain;
+}
+
+header h1 {
+  font-size: 1.9rem;
+  margin-bottom: 6px;
+  text-align: center;
+  letter-spacing: 0.03em;
+}
+
+header p {
+  font-size: 1rem;
+  opacity: 0.95;
+  margin: 0;
+  text-align: center;
+}
+
+/* CONTENIDO */
+.content {
+  padding: 25px 24px 28px;
+}
+
+/* Instrucciones */
+.instructions {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 18px 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  border-left: 4px solid var(--primary);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+
+.instructions h2 {
+  color: var(--primary);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.instructions ul {
+  margin-left: 20px;
+  line-height: 1.6;
+  color: #1f2933;
+}
+
+.instructions li {
+  margin-bottom: 8px;
+}
+
+/* Info torneo */
+.tournament-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.info-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.info-group label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--dark);
+}
+
+.info-group input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d9e6;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+  background-color: #f9fbff;
+}
+
+.info-group input:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 119, 255, 0.15);
+  background-color: #ffffff;
+}
+
+/* Inputs jugadores */
+.input-section {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin-bottom: 22px;
+}
+
+.input-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.input-group label {
+  font-weight: 600;
+  color: var(--dark);
+  width: 100%;
+}
+
+/* Grid de jugadores */
+.player-inputs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px 6px;
+  width: 100%;
+}
+
+.player-inputs input {
+  padding: 7px 8px;
+  border-radius: 8px;
+  border: 1px solid #d1d9e6;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  width: 100%;
+  margin: 0;
+  display: block;
+  background-color: rgba(255, 255, 255, 0.9);
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+/* Revés = azul claro, Drive = gris azulado */
+#revesInputs input {
+  background: #e3f2ff;
+}
+
+#driveInputs input {
+  background: #edf1f7;
+}
+
+.player-inputs input:focus {
+  border-color: var(--primary);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(0, 119, 255, 0.15);
+}
+
+/* Botones */
+.buttons-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.buttons-row button {
+  flex: 1;
+  min-width: 160px;
+}
+
+input,
+button,
+select {
+  padding: 11px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--gray);
+  font-size: 0.95rem;
+}
+
+/* Botón base */
+button {
+  background: linear-gradient(135deg, var(--primary), #0094ff);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 10px 20px rgba(0, 119, 255, 0.35);
+}
+
+button:hover {
+  filter: brightness(1.05);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 26px rgba(0, 119, 255, 0.4);
+}
+
+/* Botón secundario (generar A/B) */
+button.secondary {
+  background: linear-gradient(135deg, #00c46a, #01a95a);
+  box-shadow: 0 10px 20px rgba(0, 196, 106, 0.35);
+}
+
+button.secondary:hover {
+  box-shadow: 0 14px 26px rgba(0, 196, 106, 0.45);
+}
+
+/* Botón acento (exportar imagen) */
+button.accent {
+  background: linear-gradient(135deg, #ff5c5c, #ff2e63);
+  box-shadow: 0 10px 20px rgba(255, 92, 92, 0.35);
+}
+
+button.accent:hover {
+  box-shadow: 0 14px 26px rgba(255, 92, 92, 0.5);
+}
+
+/* TABLA DE RONDAS */
+.rounds-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 18px;
+  font-size: 0.92rem;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+}
+
+.rounds-table thead {
+  background: linear-gradient(135deg, #001b3d, #0057b8);
+  color: white;
+}
+
+.rounds-table th,
+.rounds-table td {
+  padding: 11px 10px;
+  border-bottom: 1px solid #e1e7f0;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.rounds-table tbody tr:nth-child(even):not(.round-separator) {
+  background: #f7f9fc;
+}
+
+/* Colores por ronda */
+.round-1 {
+  background-color: var(--round1);
+}
+
+.round-2 {
+  background-color: var(--round2);
+}
+
+.round-3 {
+  background-color: var(--round3);
+}
+
+.round-4 {
+  background-color: var(--round4);
+}
+
+/* Separador grueso entre rondas */
+.round-separator td {
+  border-bottom: 3px solid rgba(0, 23, 61, 0.5) !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+/* Nombres en mayúsculas */
+td {
+  text-transform: uppercase;
+}
+
+/* Bloque info torneo */
+#tournamentSummary {
+  background: linear-gradient(135deg, rgba(0, 23, 61, 0.95), rgba(0, 87, 184, 0.98));
+  color: white;
+  border-radius: 14px;
+  padding: 18px 14px;
+  margin-bottom: 16px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.4rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  line-height: 1.3;
+}
+
+#tournamentSummary span {
+  display: block;
+  font-size: 1.05rem;
+  margin-top: 6px;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.95);
+  color: white;
+  padding: 10px 18px;
+  border-radius: 999px;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.35);
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 1000;
+  font-size: 0.9rem;
+}
+
+.toast.show {
+  opacity: 1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .input-group {
+    flex-direction: column;
+  }
+
+  .player-inputs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .buttons-row {
+    flex-direction: column;
+  }
+
+  button {
+    width: 100% !important;
+  }
+
+  .rounds-table th,
+  .rounds-table td {
+    padding: 9px 6px;
+    font-size: 0.86rem;
+  }
+
+  #tournamentSummary {
+    font-size: 1.15rem;
+  }
+
+  #tournamentSummary span {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  header .header-content {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  header img {
+    max-height: 50px !important;
+    width: auto !important;
+  }
+
+  header h1 {
+    font-size: 1.4rem !important;
+  }
+
+  header p {
+    font-size: 0.9rem !important;
+  }
+
+  .rounds-table {
+    font-size: 0.82rem;
+  }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="header-content">
+      <img src="logormctpadel.png" alt="Logo RMTC Pádel">
+      <div>
+        <h1>Monta tu Torneo de Pádel - JDP v16</h1>
+        <p>Formato americano 12 jugadores - 4 rondas - 3 pistas</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <div class="instructions">
+      <h2><i class="fas fa-info-circle"></i> Instrucciones</h2>
+      <ul>
+        <li>Registra el nombre del torneo, la fecha, la hora de inicio y el lugar del evento.</li>
+        <li>Ingresa los nombres de 6 jugadores de Revés y 6 jugadores de Drive (total 12 jugadores).</li>
+        <li>El sistema generará automáticamente 4 rondas de partidos en 3 pistas, según el formato seleccionado.</li>
+      </ul>
+    </div>
+
+    <div class="tournament-info">
+      <div class="info-group">
+        <label for="tournamentName">Nombre del Torneo:</label>
+        <input type="text" id="tournamentName" placeholder="Ej: Torneo Amistoso de Verano" maxlength="50">
+      </div>
+      <div class="info-group">
+        <label for="tournamentDate">Fecha:</label>
+        <input type="date" id="tournamentDate">
+      </div>
+      <div class="info-group">
+        <label for="startTime">Hora de inicio:</label>
+        <input type="time" id="startTime">
+      </div>
+      <div class="info-group">
+        <label for="location">Lugar:</label>
+        <input type="text" id="location" value="Murcia Club de Tenis" maxlength="50">
+      </div>
+    </div>
+
+    <div class="input-section">
+      <div class="input-group">
+        <label>Jugadores de Revés (R):</label>
+        <div class="player-inputs" id="revesInputs">
+          <input type="text" maxlength="10" placeholder="Revés 1">
+          <input type="text" maxlength="10" placeholder="Revés 2">
+          <input type="text" maxlength="10" placeholder="Revés 3">
+          <input type="text" maxlength="10" placeholder="Revés 4">
+          <input type="text" maxlength="10" placeholder="Revés 5">
+          <input type="text" maxlength="10" placeholder="Revés 6">
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Jugadores de Drive (D):</label>
+        <div class="player-inputs" id="driveInputs">
+          <input type="text" maxlength="10" placeholder="Drive 1">
+          <input type="text" maxlength="10" placeholder="Drive 2">
+          <input type="text" maxlength="10" placeholder="Drive 3">
+          <input type="text" maxlength="10" placeholder="Drive 4">
+          <input type="text" maxlength="10" placeholder="Drive 5">
+          <input type="text" maxlength="10" placeholder="Drive 6">
+        </div>
+      </div>
+
+      <!-- Cabecera para los botones de generación -->
+      <div style="margin-top: 8px; margin-bottom: 4px; text-align:center; font-weight:700; color:var(--dark);">
+        GENERAR CUADROS DE PARTIDOS
+      </div>
+
+      <div class="buttons-row">
+        <button id="generateBtnA" class="secondary" type="button">
+          <i class="fas fa-random"></i> PAREJAS REVÉS+DRIVE
+        </button>
+        <button id="generateBtnB" class="secondary" type="button">
+          <i class="fas fa-random"></i> PAREJAS SIN LADO EXCLUSIVO
+        </button>
+      </div>
+    </div>
+
+    <!-- Bloque resumen torneo, oculto inicialmente -->
+    <div id="tournamentSummary" style="display: none;"></div>
+
+    <!-- Contenedor para exportar imagen: resumen + tabla -->
+    <div id="exportContainer" style="background: white; padding: 10px; border-radius: 12px;">
+      <table id="roundsTable" class="rounds-table" aria-label="Tabla de rondas de partidos">
+        <thead>
+          <tr>
+            <th>Pista</th>
+            <th>Equipo 1</th>
+            <th></th>
+            <th>Equipo 2</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="actions" style="margin-top: 20px; justify-content: center; display: flex; gap: 15px; flex-wrap: wrap;">
+      <button id="clearBtn" type="button">
+        <i class="fas fa-trash-alt"></i> Limpiar Todo
+      </button>
+      <button id="exportImgBtn" class="accent" type="button">
+        <i class="fas fa-image"></i> Exportar a Imagen
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast">Imagen exportada</div>
+
+<footer style="text-align: center; padding: 20px; color: white; margin-top: auto; opacity: 0.8;">
+  <p>© 2025 Organizador de Partidos de Pádel - @jndolera</p>
+</footer>
+
+<!-- Librería para exportar imagen -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+  (function() {
+    let matchesHistory = [];
+
+    const generateBtnA = document.getElementById('generateBtnA');
+    const generateBtnB = document.getElementById('generateBtnB');
+    const clearBtn = document.getElementById('clearBtn');
+    const exportImgBtn = document.getElementById('exportImgBtn');
+    const roundsTableBody = document.querySelector('#roundsTable tbody');
+    const tournamentSummary = document.getElementById('tournamentSummary');
+    const exportContainer = document.getElementById('exportContainer');
+
+    generateBtnA.addEventListener('click', () => generateMatches('A'));
+    generateBtnB.addEventListener('click', () => generateMatches('B'));
+    clearBtn.addEventListener('click', clearAll);
+    exportImgBtn.addEventListener('click', exportToImage);
+
+    function generateMatches(type) {
+      // Leer inputs revés y drive
+      const revesInputs = Array.from(document.querySelectorAll('#revesInputs input'));
+      const driveInputs = Array.from(document.querySelectorAll('#driveInputs input'));
+
+      const revesPlayers = revesInputs.map(input => input.value.trim()).filter(p => p !== '');
+      const drivePlayers = driveInputs.map(input => input.value.trim()).filter(p => p !== '');
+
+      if (revesPlayers.length !== 6 || drivePlayers.length !== 6) {
+        alert('Por favor, ingresa exactamente 6 jugadores para Revés y 6 para Drive (total 12 jugadores).');
+        return;
+      }
+
+      const players = [];
+      // Intercalamos revés y drive para mantener índice:
+      // 0:R1, 1:D1, 2:R2, 3:D2, ..., 10:R6, 11:D6
+      for (let i = 0; i < 6; i++) {
+        players.push(revesPlayers[i]);
+        players.push(drivePlayers[i]);
+      }
+
+      const tournamentName = document.getElementById('tournamentName').value.trim() || 'TORNEO SIN NOMBRE';
+      const tournamentDateRaw = document.getElementById('tournamentDate').value;
+      const startTimeInput = document.getElementById('startTime').value;
+      const locationInput = document.getElementById('location').value.trim() || 'Murcia Club de Tenis';
+
+      if (!startTimeInput) {
+        alert('Por favor, ingresa la hora de inicio.');
+        return;
+      }
+
+      // Formatear fecha: Día de la semana, número día, mes y año
+      const formattedDate = tournamentDateRaw ? formatDate(tournamentDateRaw) : 'No especificada';
+
+      // Mostrar resumen torneo encima tabla (en exportContainer y visible)
+      tournamentSummary.style.display = 'block';
+      tournamentSummary.innerHTML = `
+        ${tournamentName.toUpperCase()}<br/>
+        <span>Fecha: ${formattedDate}</span>
+        <span>Hora de inicio: ${startTimeInput}</span>
+        <span>Lugar: ${locationInput}</span>
+      `;
+
+      if (type === 'A') {
+        generateRoundsA(players);
+      } else {
+        generateRoundsB(players);
+      }
+    }
+
+    function formatDate(dateStr) {
+      const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      const d = new Date(dateStr + 'T00:00:00');
+      if (isNaN(d)) return dateStr;
+      return `${days[d.getDay()]}, ${d.getDate()} de ${months[d.getMonth()]} de ${d.getFullYear()}`;
+    }
+
+    // PAREJAS REVÉS+DRIVE (12 jugadores, 3 pistas, 4 rondas)
+    // Numeración dada: 1–12  => índice = número - 1
+    function generateRoundsA(players) {
+      const rounds = [
+        {
+          className: "round-1",
+          matches: [
+            // Ronda 1
+            // Pista 1: (1,2) vs (3,4)
+            { team1: [0, 1],  team2: [2, 3],   court: "Pista 1" },
+            // Pista 2: (5,6) vs (7,8)
+            { team1: [4, 5],  team2: [6, 7],   court: "Pista 2" },
+            // Pista 3: (9,10) vs (11,12)
+            { team1: [8, 9],  team2: [10, 11], court: "Pista 3" }
+          ]
+        },
+        {
+          className: "round-2",
+          matches: [
+            // Ronda 2
+            // Pista 1: (5,8) vs (9,12)
+            { team1: [4, 7],  team2: [8, 11],  court: "Pista 1" },
+            // Pista 2: (1,4) vs (11,2)
+            { team1: [0, 3],  team2: [10, 1],  court: "Pista 2" },
+            // Pista 3: (3,6) vs (7,10)
+            { team1: [2, 5],  team2: [6, 9],   court: "Pista 3" }
+          ]
+        },
+        {
+          className: "round-3",
+          matches: [
+            // Ronda 3
+            // Pista 1: (5,10) vs (11,4)
+            { team1: [4, 9],  team2: [10, 3],  court: "Pista 1" },
+            // Pista 2: (3,8) vs (7,12)
+            { team1: [2, 7],  team2: [6, 11],  court: "Pista 2" },
+            // Pista 3: (1,6) vs (9,2)
+            { team1: [0, 5],  team2: [8, 1],   court: "Pista 3" }
+          ]
+        },
+        {
+          className: "round-4",
+          matches: [
+            // Ronda 4
+            // Pista 1: (7,2) vs (11,6)
+            { team1: [6, 1],  team2: [10, 5],  court: "Pista 1" },
+            // Pista 2: (3,10) vs (9,4)
+            { team1: [2, 9],  team2: [8, 3],   court: "Pista 2" },
+            // Pista 3: (1,8) vs (5,12)
+            { team1: [0, 7],  team2: [4, 11],  court: "Pista 3" }
+          ]
+        }
+      ];
+      fillRoundsTable(rounds, players);
+    }
+
+    // PAREJAS SIN LADO EXCLUSIVO (12 jugadores, 3 pistas, 4 rondas)
+    // Numeración dada: 1–12  => índice = número - 1
+    function generateRoundsB(players) {
+      const rounds = [
+        {
+          className: "round-1",
+          matches: [
+            // Ronda 1
+            // Pista 1: 1–6 vs 9–12
+            { team1: [0, 5],  team2: [8, 11], court: "Pista 1" },
+            // Pista 2: 2–3 vs 4–8
+            { team1: [1, 2],  team2: [3, 7],  court: "Pista 2" },
+            // Pista 3: 5–11 vs 7–10
+            { team1: [4, 10], team2: [6, 9],  court: "Pista 3" }
+          ]
+        },
+        {
+          className: "round-2",
+          matches: [
+            // Ronda 2
+            // Pista 1: 1–5 vs 9–10
+            { team1: [0, 4],  team2: [8, 9],  court: "Pista 1" },
+            // Pista 2: 2–7 vs 8–12
+            { team1: [1, 6],  team2: [7, 11], court: "Pista 2" },
+            // Pista 3: 3–6 vs 4–11
+            { team1: [2, 5],  team2: [3, 10], court: "Pista 3" }
+          ]
+        },
+        {
+          className: "round-3",
+          matches: [
+            // Ronda 3
+            // Pista 1: 1–11 vs 4–6
+            { team1: [0, 10], team2: [3, 5],  court: "Pista 1" },
+            // Pista 2: 2–5 vs 7–9
+            { team1: [1, 4],  team2: [6, 8],  court: "Pista 2" },
+            // Pista 3: 3–8 vs 10–12
+            { team1: [2, 7],  team2: [9, 11], court: "Pista 3" }
+          ]
+        },
+        {
+          className: "round-4",
+          matches: [
+            // Ronda 4
+            // Pista 1: 1–2 vs 4–10
+            { team1: [0, 1],  team2: [3, 9],  court: "Pista 1" },
+            // Pista 2: 3–5 vs 6–12
+            { team1: [2, 4],  team2: [5, 11], court: "Pista 2" },
+            // Pista 3: 7–8 vs 9–11
+            { team1: [6, 7],  team2: [8, 10], court: "Pista 3" }
+          ]
+        }
+      ];
+      fillRoundsTableNoSide(rounds, players);
+    }
+
+    // Formato REVÉS+DRIVE (muestra R/D)
+    function fillRoundsTable(rounds, players) {
+      matchesHistory = [];
+      roundsTableBody.innerHTML = '';
+
+      rounds.forEach((round, roundIndex) => {
+        round.matches.forEach((match) => {
+          matchesHistory.push({
+            team1: [match.team1[0], match.team1[1]],
+            team2: [match.team2[0], match.team2[1]]
+          });
+
+          const tr = document.createElement('tr');
+          tr.classList.add(round.className);
+
+          tr.innerHTML = `
+            <td>${match.court}</td>
+            <td>
+              ${players[match.team1[0]].toUpperCase()} (R)<br/>
+              ${players[match.team1[1]].toUpperCase()} (D)
+            </td>
+            <td><strong>VS</strong></td>
+            <td>
+              ${players[match.team2[0]].toUpperCase()} (R)<br/>
+              ${players[match.team2[1]].toUpperCase()} (D)
+            </td>
+          `;
+          roundsTableBody.appendChild(tr);
+        });
+
+        if (roundIndex < rounds.length - 1) {
+          const separatorRow = document.createElement('tr');
+          separatorRow.classList.add('round-separator');
+          separatorRow.innerHTML = `<td colspan="4"></td>`;
+          roundsTableBody.appendChild(separatorRow);
+        }
+      });
+    }
+
+    // Formato SIN LADO EXCLUSIVO (sin mostrar R/D)
+    function fillRoundsTableNoSide(rounds, players) {
+      matchesHistory = [];
+      roundsTableBody.innerHTML = '';
+
+      rounds.forEach((round, roundIndex) => {
+        round.matches.forEach((match) => {
+          matchesHistory.push({
+            team1: [match.team1[0], match.team1[1]],
+            team2: [match.team2[0], match.team2[1]]
+          });
+
+          const tr = document.createElement('tr');
+          tr.classList.add(round.className);
+
+          tr.innerHTML = `
+            <td>${match.court}</td>
+            <td>
+              ${players[match.team1[0]].toUpperCase()}<br/>
+              ${players[match.team1[1]].toUpperCase()}
+            </td>
+            <td><strong>VS</strong></td>
+            <td>
+              ${players[match.team2[0]].toUpperCase()}<br/>
+              ${players[match.team2[1]].toUpperCase()}
+            </td>
+          `;
+          roundsTableBody.appendChild(tr);
+        });
+
+        if (roundIndex < rounds.length - 1) {
+          const separatorRow = document.createElement('tr');
+          separatorRow.classList.add('round-separator');
+          separatorRow.innerHTML = `<td colspan="4"></td>`;
+          roundsTableBody.appendChild(separatorRow);
+        }
+      });
+    }
+
+    function clearAll() {
+      document.getElementById('tournamentName').value = '';
+      document.getElementById('tournamentDate').value = '';
+      document.getElementById('startTime').value = '';
+      document.getElementById('location').value = 'Murcia Club de Tenis';
+      roundsTableBody.innerHTML = '';
+      tournamentSummary.style.display = 'none';
+
+      const revesInputs = document.querySelectorAll('#revesInputs input');
+      const driveInputs = document.querySelectorAll('#driveInputs input');
+      revesInputs.forEach(input => input.value = '');
+      driveInputs.forEach(input => input.value = '');
+
+      matchesHistory = [];
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    async function exportToImage() {
+      if (tournamentSummary.style.display === 'none') {
+        alert('Primero genera los partidos para exportar.');
+        return;
+      }
+      try {
+        const exportWrapper = document.createElement('div');
+        exportWrapper.style.background = 'white';
+        exportWrapper.style.padding = '20px';
+        exportWrapper.style.borderRadius = '12px';
+        exportWrapper.style.textAlign = 'center';
+        exportWrapper.style.color = 'black';
+        exportWrapper.style.fontFamily = 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif';
+
+        const summaryClone = tournamentSummary.cloneNode(true);
+        summaryClone.style.color = 'white';
+        summaryClone.style.background = 'linear-gradient(135deg, rgba(0, 23, 61, 0.95), rgba(0, 87, 184, 0.98))';
+        summaryClone.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.4)';
+        summaryClone.style.marginBottom = '20px';
+        exportWrapper.appendChild(summaryClone);
+
+        const tableClone = exportContainer.querySelector('#roundsTable').cloneNode(true);
+        exportWrapper.appendChild(tableClone);
+
+        document.body.appendChild(exportWrapper);
+
+        const canvas = await html2canvas(exportWrapper, { scale: 3, backgroundColor: '#ffffff' });
+        const imgData = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = imgData;
+        link.download = 'torneo_padel_12j_3p.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        document.body.removeChild(exportWrapper);
+
+        showToast('Imagen exportada correctamente');
+      } catch (e) {
+        alert('Error al exportar imagen');
+        console.error(e);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const revesInputs = document.querySelectorAll('#revesInputs input');
+      const driveInputs = document.querySelectorAll('#driveInputs input');
+      revesInputs.forEach((input, i) => input.placeholder = `Revés ${i + 1}`);
+      driveInputs.forEach((input, i) => input.placeholder = `Drive ${i + 1}`);
+
+      const today = new Date();
+      document.getElementById('tournamentDate').value = today.toISOString().split('T')[0];
+      document.getElementById('startTime').value = "10:00";
+      document.getElementById('location').value = "Murcia Club de Tenis";
+    });
+  })();
+</script>
+
+</body>
+</html>

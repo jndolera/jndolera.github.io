@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>RMCT - Americano 8 Jugadores</title>
+    <style>
+        :root {
+            --rmct-blue: #0057b8;
+            --rmct-dark: #001b3d;
+            --rmct-gold: #d9b46b;
+            --reves-bg: #e3f2ff;
+            --drive-bg: #fdf2e9;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background: linear-gradient(135deg, var(--rmct-dark) 0%, var(--rmct-blue) 100%);
+            margin: 0;
+            padding: 10px;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #f4f7fb;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+
+        /* HEADER */
+        .header {
+            background: white;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 4px solid var(--rmct-gold);
+        }
+
+        .header img { width: 160px; margin-bottom: 8px; }
+
+        .tournament-title {
+            margin: 0;
+            font-size: 1.2rem;
+            color: var(--rmct-dark);
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .badge {
+            background: var(--rmct-blue);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* SECCIONES */
+        .section { padding: 15px; border-bottom: 1px solid #ddd; }
+
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--rmct-blue);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+        }
+
+        /* INPUTS JUGADORES */
+        .player-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .column-label {
+            font-size: 0.65rem;
+            font-weight: 900;
+            text-align: center;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            outline: none;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .in-reves { border-left: 4px solid #0077ff; background: var(--reves-bg); }
+        .in-drive { border-left: 4px solid #ff8800; background: var(--drive-bg); }
+
+        .btn {
+            background: var(--rmct-blue);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 50px;
+            width: 100%;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        /* RONDAS */
+        .ronda-card {
+            background: white;
+            margin-bottom: 15px;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+
+        .ronda-header {
+            background: var(--rmct-dark);
+            color: white;
+            padding: 8px 15px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .pista-box { padding: 12px; border-bottom: 1px dashed #eee; }
+        .pista-label { font-size: 0.65rem; font-weight: 800; color: #999; margin-bottom: 5px; display: block; }
+
+        .match-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .pareja-box {
+            flex: 1;
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 0.75rem;
+            line-height: 1.2;
+        }
+
+        .pareja-box span { display: block; font-weight: 700; }
+        .p-reves { color: #0056b3; }
+        .p-drive { color: #b35f00; }
+
+        .score-input {
+            width: 40px;
+            padding: 6px 0;
+            text-align: center;
+            font-weight: 900;
+            font-size: 1rem;
+            border: 2px solid #ddd;
+        }
+
+        /* CLASIFICACIÓN */
+        .rank-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: white;
+            margin-bottom: 5px;
+            border-radius: 12px;
+        }
+        .rank-info { display: flex; align-items: center; gap: 10px; }
+        .rank-pos { font-weight: 900; color: var(--rmct-gold); width: 20px; }
+        .rank-name { font-weight: 700; font-size: 0.8rem; }
+        .rank-stats { font-family: monospace; font-weight: 700; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <img src="https://www.murciaclubdetenis.es/wp-content/uploads/2019/10/logo-menu-1x2.png" alt="Logo RMCT">
+        <h1 class="tournament-title" id="dispTorneo">AMERICANO REVES VS DRIVE</h1>
+        <div class="badges">
+            <span class="badge" id="dispEv">JUEVES SANTO</span>
+            <span class="badge" id="dispCat">CAT: ABSOLUTA</span>
+            <span class="badge" id="dispHora">H: 10:00</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">⚙️ Datos y Jugadores</div>
+        <div class="player-grid" style="margin-bottom: 15px;">
+            <input type="text" id="inTorneo" value="TORNEO RMCT" placeholder="Torneo">
+            <input type="text" id="inCat" value="ABSOLUTA" placeholder="Categoría">
+            <input type="text" id="inEvento" value="AMERICANO" placeholder="Evento">
+            <input type="text" id="inHora" value="10:00" placeholder="Hora">
+        </div>
+
+        <div class="player-grid">
+            <div>
+                <div class="column-label">REVESES</div>
+                <input type="text" class="in-reves" id="r0" value="Juan DP">
+                <input type="text" class="in-reves" id="r1" value="José BD">
+                <input type="text" class="in-reves" id="r2" value="Javier LG">
+                <input type="text" class="in-reves" id="r3" value="Gonzalo CM">
+            </div>
+            <div>
+                <div class="column-label">DRIVES</div>
+                <input type="text" class="in-drive" id="d0" value="Mariano MA">
+                <input type="text" class="in-drive" id="d1" value="Maxi">
+                <input type="text" class="in-drive" id="d2" value="Pepe OC">
+                <input type="text" class="in-drive" id="d3" value="María Luisa TC">
+            </div>
+        </div>
+        <button class="btn" onclick="generarCuadro()">🎯 GENERAR CUADRO (2 PISTAS)</button>
+    </div>
+
+    <div class="section" id="sectionPartidos" style="display:none;">
+        <div class="section-title">🎾 Jornadas de Juego</div>
+        <div id="cuadro"></div>
+    </div>
+
+    <div class="section" id="sectionRanking" style="display:none;">
+        <div class="section-title">🏆 Clasificación Individual</div>
+        <div id="ranking"></div>
+        <button class="btn" style="background:#666;" onclick="window.location.reload()">🔄 REINICIAR</button>
+    </div>
+</div>
+
+<script>
+    let partidosData = [];
+
+    // Rotación fija optimizada para 8 jugadores (4R y 4D) 
+    // Parejas únicas y siempre R+D
+    const esquema = [
+        { 
+            jornada: 1, 
+            p1: { a: ['r0', 'd0'], b: ['r1', 'd1'] }, 
+            p2: { a: ['r2', 'd2'], b: ['r3', 'd3'] } 
+        },
+        { 
+            jornada: 2, 
+            p1: { a: ['r0', 'd1'], b: ['r2', 'd3'] }, 
+            p2: { a: ['r1', 'd0'], b: ['r3', 'd2'] } 
+        },
+        { 
+            jornada: 3, 
+            p1: { a: ['r0', 'd2'], b: ['r3', 'd1'] }, 
+            p2: { a: ['r2', 'd0'], b: ['r1', 'd3'] } 
+        },
+        { 
+            jornada: 4, 
+            p1: { a: ['r0', 'd3'], b: ['r1', 'd2'] }, 
+            p2: { a: ['r3', 'd0'], b: ['r2', 'd1'] } 
+        }
+    ];
+
+    function generarCuadro() {
+        // UI
+        document.getElementById('dispTorneo').innerText = document.getElementById('inTorneo').value;
+        document.getElementById('dispEv').innerText = document.getElementById('inEvento').value;
+        document.getElementById('dispCat').innerText = "CAT: " + document.getElementById('inCat').value;
+        document.getElementById('dispHora').innerText = "H: " + document.getElementById('inHora').value;
+
+        const jugadores = {};
+        for(let i=0; i<4; i++) {
+            jugadores[`r${i}`] = document.getElementById(`r${i}`).value.toUpperCase();
+            jugadores[`d${i}`] = document.getElementById(`d${i}`).value.toUpperCase();
+        }
+
+        partidosData = [];
+        let html = "";
+
+        esquema.forEach((jornada, idx) => {
+            const id1 = `j${idx}p1`;
+            const id2 = `j${idx}p2`;
+
+            // Guardar datos
+            partidosData.push({ id: id1, jA: [jornada.p1.a[0], jornada.p1.a[1]], jB: [jornada.p1.b[0], jornada.p1.b[1]], sA: 0, sB: 0 });
+            partidosData.push({ id: id2, jA: [jornada.p2.a[0], jornada.p2.a[1]], jB: [jornada.p2.b[0], jornada.p2.b[1]], sA: 0, sB: 0 });
+
+            html += `
+                <div class="ronda-card">
+                    <div class="ronda-header">JORNADA ${jornada.jornada}</div>
+                    <div class="pista-box">
+                        <span class="pista-label">PISTA 1</span>
+                        <div class="match-row">
+                            <div class="pareja-box">
+                                <span class="p-reves">${jugadores[jornada.p1.a[0]]}</span>
+                                <span class="p-drive">${jugadores[jornada.p1.a[1]]}</span>
+                            </div>
+                            <input type="number" class="score-input" id="scA_${id1}" onchange="registrar('${id1}')">
+                            <input type="number" class="score-input" id="scB_${id1}" onchange="registrar('${id1}')">
+                            <div class="pareja-box">
+                                <span class="p-reves">${jugadores[jornada.p1.b[0]]}</span>
+                                <span class="p-drive">${jugadores[jornada.p1.b[1]]}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pista-box">
+                        <span class="pista-label">PISTA 2</span>
+                        <div class="match-row">
+                            <div class="pareja-box">
+                                <span class="p-reves">${jugadores[jornada.p2.a[0]]}</span>
+                                <span class="p-drive">${jugadores[jornada.p2.a[1]]}</span>
+                            </div>
+                            <input type="number" class="score-input" id="scA_${id2}" onchange="registrar('${id2}')">
+                            <input type="number" class="score-input" id="scB_${id2}" onchange="registrar('${id2}')">
+                            <div class="pareja-box">
+                                <span class="p-reves">${jugadores[jornada.p2.b[0]]}</span>
+                                <span class="p-drive">${jugadores[jornada.p2.b[1]]}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        document.getElementById('cuadro').innerHTML = html;
+        document.getElementById('sectionPartidos').style.display = 'block';
+        document.getElementById('sectionRanking').style.display = 'block';
+        actualizarRanking();
+    }
+
+    function registrar(id) {
+        const p = partidosData.find(x => x.id === id);
+        p.sA = parseInt(document.getElementById(`scA_${id}`).value) || 0;
+        p.sB = parseInt(document.getElementById(`scB_${id}`).value) || 0;
+        actualizarRanking();
+    }
+
+    function actualizarRanking() {
+        const globalStats = {};
+        // Inicializar
+        for(let i=0; i<4; i++) {
+            const nr = document.getElementById(`r${i}`).value.toUpperCase();
+            const nd = document.getElementById(`d${i}`).value.toUpperCase();
+            globalStats[`r${i}`] = { nombre: nr, vic: 0, dif: 0 };
+            globalStats[`d${i}`] = { nombre: nd, vic: 0, dif: 0 };
+        }
+
+        partidosData.forEach(p => {
+            if(p.sA === 0 && p.sB === 0) return;
+            
+            const difA = p.sA - p.sB;
+            const difB = p.sB - p.sA;
+
+            p.jA.forEach(jugID => {
+                if(p.sA > p.sB) globalStats[jugID].vic++;
+                globalStats[jugID].dif += difA;
+            });
+            p.jB.forEach(jugID => {
+                if(p.sB > p.sA) globalStats[jugID].vic++;
+                globalStats[jugID].dif += difB;
+            });
+        });
+
+        const lista = Object.values(globalStats).sort((a,b) => {
+            if(b.vic !== a.vic) return b.vic - a.vic;
+            return b.dif - a.dif;
+        });
+
+        let html = "";
+        lista.forEach((j, i) => {
+            html += `
+                <div class="rank-item">
+                    <div class="rank-info">
+                        <span class="rank-pos">${i+1}</span>
+                        <span class="rank-name">${j.nombre}</span>
+                    </div>
+                    <div class="rank-stats">
+                        <span style="color:var(--rmct-blue)">${j.vic}V</span>
+                        <span style="color:#666">| ${j.dif > 0 ? '+' + j.dif : j.dif}</span>
+                    </div>
+                </div>
+            `;
+        });
+        document.getElementById('ranking').innerHTML = html;
+    }
+</script>
+
+</body>
+</html>

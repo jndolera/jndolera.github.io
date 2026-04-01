@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Torneo Pádel - Jueves Santo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a472a 0%, #0e2e1a 100%);
+            margin: 0;
+            padding: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif;
+        }
+
+        .card {
+            max-width: 550px;
+            margin: 0 auto;
+            background: #fef7e8;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2b6e2f, #1e4a1f);
+            padding: 16px 12px;
+            text-align: center;
+            border-bottom: 3px solid #ffcd7e;
+        }
+
+        .header h1 {
+            margin: 0 0 4px 0;
+            font-size: 1.2rem;
+            color: #ffefb9;
+            word-break: break-word;
+        }
+
+        .info-torneo {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .badge-header {
+            background: rgba(0,0,0,0.4);
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #ffefb9;
+        }
+
+        .content {
+            padding: 12px;
+        }
+
+        /* Panel de configuración */
+        .config-panel {
+            background: #e9dbc3;
+            border-radius: 20px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+
+        .config-panel h3 {
+            margin: 0 0 12px 0;
+            font-size: 0.9rem;
+            color: #2c4722;
+            text-align: center;
+        }
+
+        .fila-config {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .campo-config {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .campo-config label {
+            display: block;
+            font-size: 0.65rem;
+            font-weight: bold;
+            color: #5a3e1b;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+        }
+
+        .campo-config input, .campo-config select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #d4bc8c;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            background: white;
+            outline: none;
+            text-align: center;
+        }
+
+        .inputs-jugadores {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .input-jugador {
+            background: white;
+            border-radius: 50px;
+            padding: 3px 10px;
+            border: 1px solid #d4bc8c;
+        }
+
+        .input-jugador input {
+            width: 100%;
+            border: none;
+            padding: 8px 0;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            background: transparent;
+            outline: none;
+            text-align: center;
+        }
+
+        .btn-generar {
+            background: #2b6e2f;
+            border: none;
+            color: white;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 50px;
+            width: 100%;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .btn-generar:active {
+            transform: scale(0.97);
+            background: #1e5422;
+        }
+
+        /* Rondas */
+        .ronda {
+            background: white;
+            border-radius: 20px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .ronda-titulo {
+            background: #d9b46b;
+            padding: 8px 12px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            color: #2c2b1f;
+        }
+
+        .partido {
+            padding: 12px;
+        }
+
+        .pareja-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f5ede0;
+            border-radius: 50px;
+            padding: 6px 14px;
+            margin-bottom: 8px;
+            gap: 10px;
+        }
+
+        .pareja-nombre {
+            font-weight: 800;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #2c4722;
+            flex: 2;
+            word-break: break-word;
+        }
+
+        .pareja-input {
+            width: 65px;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 8px 0;
+            border: 1px solid #c0a062;
+            border-radius: 40px;
+            background: white;
+            font-family: monospace;
+            outline: none;
+        }
+
+        .vs-div {
+            text-align: center;
+            font-weight: bold;
+            color: #b87c2e;
+            margin: 3px 0 6px 0;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        .btn-registrar {
+            background: #2b6e2f;
+            border: none;
+            color: white;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            margin: 8px 0 6px 0;
+        }
+
+        .btn-registrar:active {
+            transform: scale(0.97);
+            background: #1e5422;
+        }
+
+        .resultado-badge {
+            background: #e0e7cf;
+            border-radius: 50px;
+            padding: 6px 12px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .reset-btn {
+            background: #7a5b3a;
+            border: none;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 0.6rem;
+            cursor: pointer;
+        }
+
+        .clasificacion {
+            background: #e9dbc3;
+            border-radius: 20px;
+            padding: 12px;
+            margin-top: 16px;
+        }
+
+        .clasificacion h3 {
+            margin: 0 0 8px 0;
+            font-size: 0.95rem;
+            color: #2c4722;
+        }
+
+        .jugador-row {
+            background: white;
+            border-radius: 60px;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .jugador-nombre {
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
+
+        .jugador-stats {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .victorias {
+            background: #ffdd99;
+            padding: 2px 8px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 0.65rem;
+        }
+
+        .diferencia {
+            font-family: monospace;
+            font-weight: bold;
+            min-width: 35px;
+            text-align: right;
+            font-size: 0.75rem;
+        }
+
+        .btn-global {
+            background: #413525;
+            border: none;
+            color: #ffefcf;
+            padding: 8px 14px;
+            border-radius: 60px;
+            width: 100%;
+            font-weight: bold;
+            font-size: 0.75rem;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .btn-global:active {
+            transform: scale(0.98);
+        }
+
+        .empty-msg {
+            text-align: center;
+            padding: 25px;
+            color: #7a5b3a;
+            background: white;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        input, button, select {
+            touch-action: manipulation;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="header">
+        <h1 id="tituloTorneo">🎾 TORNEO PÁDEL RMCT</h1>
+        <div class="info-torneo">
+            <span id="eventoBadge" class="badge-header">"JUEVES SANTO"</span>
+            <span id="categoriaBadge" class="badge-header">🏷️ CATEGORÍA</span>
+            <span id="pistaBadge" class="badge-header">📍 PISTA 1</span>
+            <span id="horaBadge" class="badge-header">🕙 10:00</span>
+        </div>
+    </div>
+
+    <div class="content">
+        <!-- Panel de configuración -->
+        <div class="config-panel">
+            <h3>⚙️ CONFIGURACIÓN DEL TORNEO</h3>
+            <div class="fila-config">
+                <div class="campo-config">
+                    <label>NOMBRE TORNEO</label>
+                    <input type="text" id="nombreTorneo" placeholder="TORNEO PÁDEL RMCT" value="TORNEO PÁDEL RMCT">
+                </div>
+                <div class="campo-config">
+                    <label>EVENTO</label>
+                    <input type="text" id="nombreEvento" placeholder="JUEVES SANTO" value="JUEVES SANTO">
+                </div>
+            </div>
+            <div class="fila-config">
+                <div class="campo-config">
+                    <label>CATEGORÍA</label>
+                    <input type="text" id="categoria" placeholder="Ej: 3ª / QUINTA" value="QUINTA">
+                </div>
+                <div class="campo-config">
+                    <label>PISTA</label>
+                    <input type="text" id="numeroPista" placeholder="PISTA 1" value="PISTA 1">
+                </div>
+                <div class="campo-config">
+                    <label>HORA</label>
+                    <input type="text" id="horaInicio" placeholder="10:00" value="10:00">
+                </div>
+            </div>
+            
+            <h3 style="margin-top: 12px;">👥 JUGADORES</h3>
+            <div class="inputs-jugadores">
+                <div class="input-jugador">
+                    <input type="text" id="jugador1" placeholder="JUGADOR 1" value="PASCUAL" maxlength="20">
+                </div>
+                <div class="input-jugador">
+                    <input type="text" id="jugador2" placeholder="JUGADOR 2" value="JOSÉ ALB" maxlength="20">
+                </div>
+                <div class="input-jugador">
+                    <input type="text" id="jugador3" placeholder="JUGADOR 3" value="ANTONIO" maxlength="20">
+                </div>
+                <div class="input-jugador">
+                    <input type="text" id="jugador4" placeholder="JUGADOR 4" value="BERNARDO" maxlength="20">
+                </div>
+            </div>
+            <button class="btn-generar" id="generarRondas">🎯 GENERAR RONDAS</button>
+        </div>
+
+        <!-- Aquí se muestran las rondas -->
+        <div id="rondasContainer"></div>
+
+        <!-- Clasificación -->
+        <div class="clasificacion" id="clasificacionPanel" style="display: none;">
+            <h3>🏆 CLASIFICACIÓN</h3>
+            <div id="clasificacionLista"></div>
+            <button class="btn-global" id="resetTodo">🔄 REINICIAR TODO</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let partidosActuales = [];
+    let jugadoresActuales = ["PASCUAL", "JOSÉ ALB", "ANTONIO", "BERNARDO"];
+
+    // Actualizar header con los datos del torneo
+    function actualizarHeader() {
+        const nombreTorneo = document.getElementById("nombreTorneo").value.trim() || "TORNEO PÁDEL";
+        const nombreEvento = document.getElementById("nombreEvento").value.trim() || "JUEVES SANTO";
+        const categoria = document.getElementById("categoria").value.trim() || "CATEGORÍA";
+        const numeroPista = document.getElementById("numeroPista").value.trim() || "PISTA 1";
+        const horaInicio = document.getElementById("horaInicio").value.trim() || "10:00";
+        
+        document.getElementById("tituloTorneo").innerHTML = `🎾 ${nombreTorneo}`;
+        document.getElementById("eventoBadge").innerHTML = `"${nombreEvento}"`;
+        document.getElementById("categoriaBadge").innerHTML = `🏷️ ${categoria}`;
+        document.getElementById("pistaBadge").innerHTML = `📍 ${numeroPista}`;
+        document.getElementById("horaBadge").innerHTML = `🕙 ${horaInicio}`;
+    }
+
+    // Generar rondas con los jugadores ingresados
+    function generarRondas() {
+        // Actualizar header
+        actualizarHeader();
+        
+        // Leer jugadores
+        const j1 = document.getElementById("jugador1").value.trim().toUpperCase() || "J1";
+        const j2 = document.getElementById("jugador2").value.trim().toUpperCase() || "J2";
+        const j3 = document.getElementById("jugador3").value.trim().toUpperCase() || "J3";
+        const j4 = document.getElementById("jugador4").value.trim().toUpperCase() || "J4";
+        
+        jugadoresActuales = [j1, j2, j3, j4];
+        
+        // Generar las 3 rondas con parejas rotativas
+        partidosActuales = [
+            {
+                id: "r1",
+                ronda: "RONDA 1",
+                parejaA: { nombre: `${jugadoresActuales[0]} & ${jugadoresActuales[1]}`, jugadores: [jugadoresActuales[0], jugadoresActuales[1]] },
+                parejaB: { nombre: `${jugadoresActuales[2]} & ${jugadoresActuales[3]}`, jugadores: [jugadoresActuales[2], jugadoresActuales[3]] },
+                resultado: null,
+                setsA: "",
+                setsB: "",
+                puntosA: null,
+                puntosB: null
+            },
+            {
+                id: "r2",
+                ronda: "RONDA 2",
+                parejaA: { nombre: `${jugadoresActuales[0]} & ${jugadoresActuales[2]}`, jugadores: [jugadoresActuales[0], jugadoresActuales[2]] },
+                parejaB: { nombre: `${jugadoresActuales[1]} & ${jugadoresActuales[3]}`, jugadores: [jugadoresActuales[1], jugadoresActuales[3]] },
+                resultado: null,
+                setsA: "",
+                setsB: "",
+                puntosA: null,
+                puntosB: null
+            },
+            {
+                id: "r3",
+                ronda: "RONDA 3",
+                parejaA: { nombre: `${jugadoresActuales[0]} & ${jugadoresActuales[3]}`, jugadores: [jugadoresActuales[0], jugadoresActuales[3]] },
+                parejaB: { nombre: `${jugadoresActuales[1]} & ${jugadoresActuales[2]}`, jugadores: [jugadoresActuales[1], jugadoresActuales[2]] },
+                resultado: null,
+                setsA: "",
+                setsB: "",
+                puntosA: null,
+                puntosB: null
+            }
+        ];
+        
+        // Limpiar localStorage al generar nuevas rondas
+        localStorage.removeItem("padelJuevesSanto");
+        
+        // Mostrar panel de clasificación
+        document.getElementById("clasificacionPanel").style.display = "block";
+        
+        renderizarTodo();
+    }
+    
+    // Cargar desde localStorage (si existe)
+    function cargarEstado() {
+        const guardado = localStorage.getItem("padelJuevesSanto");
+        if (guardado && partidosActuales.length > 0) {
+            const data = JSON.parse(guardado);
+            for (let i = 0; i < partidosActuales.length && i < data.length; i++) {
+                if (data[i]) {
+                    partidosActuales[i].resultado = data[i].resultado;
+                    partidosActuales[i].setsA = data[i].setsA || "";
+                    partidosActuales[i].setsB = data[i].setsB || "";
+                    partidosActuales[i].puntosA = data[i].puntosA;
+                    partidosActuales[i].puntosB = data[i].puntosB;
+                }
+            }
+        }
+    }
+
+    function guardarEstado() {
+        if (partidosActuales.length === 0) return;
+        localStorage.setItem("padelJuevesSanto", JSON.stringify(partidosActuales.map(p => ({
+            resultado: p.resultado,
+            setsA: p.setsA,
+            setsB: p.setsB,
+            puntosA: p.puntosA,
+            puntosB: p.puntosB
+        }))));
+    }
+
+    function calcularEstadisticas() {
+        let stats = {};
+        jugadoresActuales.forEach(j => {
+            stats[j] = { victorias: 0, derrotas: 0, jf: 0, jc: 0, partidos: 0 };
+        });
+
+        partidosActuales.forEach(p => {
+            if (p.resultado && p.puntosA !== null && p.puntosB !== null) {
+                const puntosA = parseInt(p.puntosA);
+                const puntosB = parseInt(p.puntosB);
+                const ganador = p.resultado === "A" ? "A" : "B";
+
+                p.parejaA.jugadores.forEach(jug => {
+                    if (stats[jug]) {
+                        stats[jug].partidos++;
+                        stats[jug].jf += puntosA;
+                        stats[jug].jc += puntosB;
+                        if (ganador === "A") stats[jug].victorias++;
+                        else stats[jug].derrotas++;
+                    }
+                });
+
+                p.parejaB.jugadores.forEach(jug => {
+                    if (stats[jug]) {
+                        stats[jug].partidos++;
+                        stats[jug].jf += puntosB;
+                        stats[jug].jc += puntosA;
+                        if (ganador === "B") stats[jug].victorias++;
+                        else stats[jug].derrotas++;
+                    }
+                });
+            }
+        });
+
+        jugadoresActuales.forEach(j => {
+            stats[j].dif = stats[j].jf - stats[j].jc;
+        });
+
+        return stats;
+    }
+
+    function extraerNumero(str) {
+        let match = str.toString().match(/\d+/);
+        return match ? parseInt(match[0]) : null;
+    }
+
+    function registrarResultado(partidoId, inputA, inputB) {
+        let valorA = inputA.value.trim();
+        let valorB = inputB.value.trim();
+
+        if (valorA === "" || valorB === "") {
+            alert("Introduce los juegos de cada pareja");
+            return;
+        }
+
+        let puntosA = extraerNumero(valorA);
+        let puntosB = extraerNumero(valorB);
+
+        if (puntosA === null || puntosB === null) {
+            alert("Usa números para los juegos");
+            return;
+        }
+
+        if (puntosA === puntosB) {
+            alert("No puede haber empate");
+            return;
+        }
+
+        let partido = partidosActuales.find(p => p.id === partidoId);
+        if (partido) {
+            partido.setsA = valorA;
+            partido.setsB = valorB;
+            partido.puntosA = puntosA;
+            partido.puntosB = puntosB;
+            partido.resultado = puntosA > puntosB ? "A" : "B";
+        }
+
+        guardarEstado();
+        renderizarTodo();
+    }
+
+    function resetPartido(partidoId) {
+        let partido = partidosActuales.find(p => p.id === partidoId);
+        if (partido) {
+            partido.resultado = null;
+            partido.setsA = "";
+            partido.setsB = "";
+            partido.puntosA = null;
+            partido.puntosB = null;
+        }
+        guardarEstado();
+        renderizarTodo();
+    }
+
+    function resetTodo() {
+        if (confirm("¿Reiniciar todos los resultados?")) {
+            partidosActuales.forEach(p => {
+                p.resultado = null;
+                p.setsA = "";
+                p.setsB = "";
+                p.puntosA = null;
+                p.puntosB = null;
+            });
+            guardarEstado();
+            renderizarTodo();
+        }
+    }
+
+    function renderizarTodo() {
+        const rondasDiv = document.getElementById("rondasContainer");
+        
+        if (partidosActuales.length === 0) {
+            rondasDiv.innerHTML = '<div class="empty-msg">🎾 Configura el torneo y pulsa "GENERAR RONDAS"</div>';
+            return;
+        }
+        
+        let html = "";
+
+        partidosActuales.forEach(partido => {
+            const hayResultado = partido.resultado !== null;
+            let textoResultado = "";
+            if (hayResultado) {
+                let ganador = partido.resultado === "A" ? partido.parejaA.nombre : partido.parejaB.nombre;
+                textoResultado = `🏆 GANA ${ganador} (${partido.setsA} - ${partido.setsB})`;
+            }
+
+            html += `
+                <div class="ronda">
+                    <div class="ronda-titulo">🏁 ${partido.ronda}</div>
+                    <div class="partido">
+                        <div class="pareja-row">
+                            <span class="pareja-nombre">${partido.parejaA.nombre}</span>
+                            <input type="text" class="pareja-input" id="scoreA_${partido.id}" placeholder="0" value="${escapeHtml(partido.setsA)}" inputmode="numeric">
+                        </div>
+                        <div class="vs-div">VS</div>
+                        <div class="pareja-row">
+                            <span class="pareja-nombre">${partido.parejaB.nombre}</span>
+                            <input type="text" class="pareja-input" id="scoreB_${partido.id}" placeholder="0" value="${escapeHtml(partido.setsB)}" inputmode="numeric">
+                        </div>
+                        <button class="btn-registrar" data-id="${partido.id}">📋 REGISTRAR</button>
+                        <div class="resultado-badge">
+                            ${hayResultado ? `<span>${textoResultado}</span><button class="reset-btn" data-id="${partido.id}">✖️</button>` : '<span>⚡ SIN RESULTADO</span>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        rondasDiv.innerHTML = html;
+
+        document.querySelectorAll(".btn-registrar").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const id = btn.getAttribute("data-id");
+                const inputA = document.getElementById(`scoreA_${id}`);
+                const inputB = document.getElementById(`scoreB_${id}`);
+                if (inputA && inputB) registrarResultado(id, inputA, inputB);
+            });
+        });
+
+        document.querySelectorAll(".reset-btn").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const id = btn.getAttribute("data-id");
+                resetPartido(id);
+            });
+        });
+
+        // Renderizar clasificación
+        const stats = calcularEstadisticas();
+        const ordenados = [...jugadoresActuales].sort((a, b) => {
+            if (stats[b].victorias !== stats[a].victorias) return stats[b].victorias - stats[a].victorias;
+            return stats[b].dif - stats[a].dif;
+        });
+
+        const listaDiv = document.getElementById("clasificacionLista");
+        let listaHtml = "";
+        ordenados.forEach(jug => {
+            const s = stats[jug];
+            listaHtml += `
+                <div class="jugador-row">
+                    <span class="jugador-nombre">🎾 ${jug}</span>
+                    <div class="jugador-stats">
+                        <span class="victorias">🏅 ${s.victorias}</span>
+                        <span class="diferencia">${s.dif > 0 ? `+${s.dif}` : s.dif}</span>
+                    </div>
+                </div>
+            `;
+        });
+        listaDiv.innerHTML = listaHtml;
+    }
+
+    function escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // Eventos
+    document.getElementById("generarRondas").addEventListener("click", () => {
+        generarRondas();
+    });
+    
+    document.getElementById("resetTodo").addEventListener("click", resetTodo);
+    
+    // Inicializar con valores por defecto
+    actualizarHeader();
+    generarRondas();
+</script>
+</body>
+</html>

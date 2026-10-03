@@ -44,8 +44,6 @@ input[type="date"],input[type="time"]{text-transform:none}
 .rank-name{font-weight:700;font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rank-stats{font-family:monospace;font-weight:700;font-size:.8rem;flex-shrink:0}
 .info-box{background:#fffbe6;border-left:3px solid var(--rmct-gold);padding:6px 10px;border-radius:6px;font-size:.68rem;color:#666;margin-top:8px;line-height:1.35}
-
-/* Ajustes específicos para móvil muy estrecho */
 @media (max-width:400px){
     .section{padding:6px 8px}
     .pareja-box{font-size:.68rem;padding:5px 3px}
@@ -607,3 +605,24 @@ function actualizarRanking() {
         html += '<div class="rank-stats">';
         html += '<span style="color:var(--rmct-blue)">' + j.vic + 'V</span>';
         html += '<span style="color:#666">| ' + (j.dif > 0 ? '+' + j.dif : j.dif) + '</span>';
+        html += '</div></div>';
+    }
+    document.getElementById('ranking').innerHTML = html;
+}
+
+// ============================================================
+// INICIALIZACIÓN
+// ============================================================
+window.addEventListener('DOMContentLoaded', function() {
+    var hoy = new Date();
+    var y = hoy.getFullYear();
+    var m = String(hoy.getMonth() + 1).padStart(2, '0');
+    var d = String(hoy.getDate()).padStart(2, '0');
+    document.getElementById('inEvento').value = y + '-' + m + '-' + d;
+    document.getElementById('dispEv').innerText = formatearFecha(y + '-' + m + '-' + d);
+    actualizarVisibilidadJugadores();
+});
+</script>
+
+</body>
+</html>

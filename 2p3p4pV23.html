@@ -7,37 +7,47 @@
 <style>
 :root{--rmct-blue:#0057b8;--rmct-dark:#001b3d;--rmct-gold:#d9b46b;--reves-bg:#e3f2ff;--drive-bg:#fdf2e9}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{background:linear-gradient(135deg,var(--rmct-dark) 0%,var(--rmct-blue) 100%);margin:0;padding:10px;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
-.container{max-width:600px;margin:0 auto;background:#f4f7fb;border-radius:25px;overflow:hidden;box-shadow:0 15px 35px rgba(0,0,0,.4)}
-.header{background:#fff;padding:15px;text-align:center;border-bottom:4px solid var(--rmct-gold)}
-.header img{width:160px;margin-bottom:8px}
-.tournament-title{margin:0;font-size:1.2rem;color:var(--rmct-dark);font-weight:800;text-transform:uppercase}
-.badges{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin-top:8px}
-.badge{background:var(--rmct-blue);color:#fff;padding:4px 10px;border-radius:50px;font-size:.7rem;font-weight:600}
-.section{padding:15px;border-bottom:1px solid #ddd}
-.section-title{font-size:.85rem;font-weight:800;color:var(--rmct-blue);margin-bottom:12px;text-transform:uppercase}
-.player-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.column-label{font-size:.65rem;font-weight:900;text-align:center;color:#666;margin-bottom:4px}
-input,select{width:100%;padding:10px;border:1px solid #ccc;border-radius:10px;font-size:.8rem;outline:none;text-transform:uppercase;font-weight:600;background:#fff}
+html,body{margin:0;padding:0}
+body{background:linear-gradient(135deg,var(--rmct-dark) 0%,var(--rmct-blue) 100%);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:6px}
+.container{max-width:100%;margin:0 auto;background:#f4f7fb;border-radius:15px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,.4)}
+.header{background:#fff;padding:8px 10px;text-align:center;border-bottom:3px solid var(--rmct-gold)}
+.header img{width:110px;margin-bottom:4px}
+.tournament-title{margin:0;font-size:1rem;color:var(--rmct-dark);font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.badges{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:5px}
+.badge{background:var(--rmct-blue);color:#fff;padding:3px 8px;border-radius:50px;font-size:.65rem;font-weight:700}
+.section{padding:8px 10px;border-bottom:1px solid #ddd}
+.section-title{font-size:.8rem;font-weight:800;color:var(--rmct-blue);margin-bottom:8px;text-transform:uppercase}
+.player-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.column-label{font-size:.6rem;font-weight:900;text-align:center;color:#666;margin-bottom:3px;letter-spacing:.5px}
+input,select{width:100%;padding:9px 8px;border:1px solid #ccc;border-radius:8px;font-size:.8rem;outline:none;text-transform:uppercase;font-weight:700;background:#fff}
+input[type="date"],input[type="time"]{text-transform:none}
 .in-reves{border-left:4px solid #0077ff;background:var(--reves-bg)}
 .in-drive{border-left:4px solid #ff8800;background:var(--drive-bg)}
-.btn{background:var(--rmct-blue);color:#fff;border:none;padding:14px;border-radius:50px;width:100%;font-weight:800;cursor:pointer;margin-top:15px;box-shadow:0 4px 10px rgba(0,0,0,.2)}
-.ronda-card{background:#fff;margin-bottom:15px;border-radius:18px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,.05)}
-.ronda-header{background:var(--rmct-dark);color:#fff;padding:8px 15px;font-weight:700;font-size:.9rem}
-.pista-box{padding:12px;border-bottom:1px dashed #eee}
-.pista-label{font-size:.65rem;font-weight:800;color:#999;margin-bottom:5px;display:block}
-.match-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.pareja-box{flex:1;background:#f8f9fa;padding:8px;border-radius:10px;text-align:center;font-size:.75rem;line-height:1.2}
-.pareja-box span{display:block;font-weight:700}
+.btn{background:var(--rmct-blue);color:#fff;border:none;padding:12px;border-radius:50px;width:100%;font-weight:800;cursor:pointer;margin-top:10px;box-shadow:0 4px 10px rgba(0,0,0,.2);font-size:.9rem}
+.btn-compartir{background:#25D366;margin-top:6px}
+.ronda-card{background:#fff;margin-bottom:10px;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.ronda-header{background:var(--rmct-dark);color:#fff;padding:8px 12px;font-weight:800;font-size:1rem;letter-spacing:.5px}
+.pista-box{padding:10px;border-bottom:1px solid #f0f0f0}
+.pista-box:last-child{border-bottom:none}
+.pista-label{font-size:.65rem;font-weight:800;color:#999;margin-bottom:6px;display:block;letter-spacing:1px}
+.match-row{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.pareja-box{flex:1;min-width:0;background:#f8f9fa;padding:8px 6px;border-radius:8px;text-align:center;overflow:hidden}
+.pareja-box span{display:block;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:1.05rem;line-height:1.3}
 .p-reves{color:#0056b3}
 .p-drive{color:#b35f00}
-.score-input{width:40px;padding:6px 0;text-align:center;font-weight:900;font-size:1rem;border:2px solid #ddd}
-.rank-item{display:flex;justify-content:space-between;align-items:center;padding:10px 15px;background:#fff;margin-bottom:5px;border-radius:12px}
-.rank-info{display:flex;align-items:center;gap:10px}
-.rank-pos{font-weight:900;color:var(--rmct-gold);width:20px}
-.rank-name{font-weight:700;font-size:.8rem}
-.rank-stats{font-family:monospace;font-weight:700;font-size:.85rem}
-.info-box{background:#fffbe6;border-left:4px solid var(--rmct-gold);padding:8px 12px;border-radius:8px;font-size:.7rem;color:#666;margin-top:10px;line-height:1.4}
+.marcador{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.score-input{width:38px;padding:8px 0;text-align:center;font-weight:900;font-size:1.05rem;border:2px solid #ddd;border-radius:8px;background:#fff}
+.score-input:focus{border-color:var(--rmct-blue);outline:none}
+.rank-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#fff;margin-bottom:4px;border-radius:10px}
+.rank-info{display:flex;align-items:center;gap:8px;min-width:0}
+.rank-pos{font-weight:900;color:var(--rmct-gold);width:18px;text-align:center}
+.rank-name{font-weight:700;font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank-stats{font-family:monospace;font-weight:700;font-size:.85rem;flex-shrink:0}
+.info-box{background:#fffbe6;border-left:3px solid var(--rmct-gold);padding:6px 10px;border-radius:6px;font-size:.68rem;color:#666;margin-top:8px;line-height:1.35}
+@media (max-width:400px){
+    .pareja-box span{font-size:.98rem}
+    .score-input{width:34px;font-size:.95rem}
+}
 </style>
 </head>
 <body>
@@ -56,18 +66,18 @@ input,select{width:100%;padding:10px;border:1px solid #ccc;border-radius:10px;fo
 
     <div class="section">
         <div class="section-title">⚙️ Datos y Jugadores</div>
-        <div class="player-grid" style="margin-bottom:15px">
+        <div class="player-grid" style="margin-bottom:10px">
             <input type="text" id="inTorneo" value="TORNEO RMCT">
             <input type="text" id="inCat" value="3ª/4ª">
             <input type="date" id="inEvento">
             <input type="time" id="inHora" value="10:00">
         </div>
-        <div style="margin-bottom:15px">
-            <div class="column-label" style="text-align:left;margin-bottom:6px">FORMATO DEL TORNEO</div>
+        <div style="margin-bottom:10px">
+            <div class="column-label" style="text-align:left;margin-bottom:4px">FORMATO DEL TORNEO</div>
             <select id="inPistas" onchange="actualizarVisibilidadJugadores()">
-                <option value="2" selected>2 PISTAS · 8 JUGADORES (4 revés + 4 drive)</option>
-                <option value="3">3 PISTAS · 12 JUGADORES (6 revés + 6 drive)</option>
-                <option value="4">4 PISTAS · 16 JUGADORES (8 revés + 8 drive)</option>
+                <option value="2" selected>2 PISTAS · 8 JUGADORES</option>
+                <option value="3">3 PISTAS · 12 JUGADORES</option>
+                <option value="4">4 PISTAS · 16 JUGADORES</option>
             </select>
         </div>
         <div class="player-grid">
@@ -101,6 +111,9 @@ input,select{width:100%;padding:10px;border:1px solid #ccc;border-radius:10px;fo
     <div class="section" id="sectionPartidos" style="display:none">
         <div class="section-title">🎾 Jornadas de Juego</div>
         <div id="cuadro"></div>
+        <button class="btn btn-compartir" id="btnCompartir" onclick="compartirCuadro()" style="display:none">
+            📤 COMPARTIR CUADRO POR WHATSAPP
+        </button>
     </div>
 
     <div class="section" id="sectionRanking" style="display:none">
@@ -147,7 +160,7 @@ function actualizarVisibilidadJugadores() {
 }
 
 // ============================================================
-// ALGORITMO PRINCIPAL
+// ALGORITMO
 // ============================================================
 function construirCuadro(pistas) {
     var cfg = configPorPistas(pistas);
@@ -159,8 +172,6 @@ function construirCuadro(pistas) {
 
     var todos = reveses.concat(drives);
 
-    // ----- 1. Esqueleto: parejas por jornada con round-robin -----
-    // Jornada j → revés i con drive (i + j) % nDri
     var esqueleto = [];
     for (var j = 0; j < nJornadas; j++) {
         var parejas = [];
@@ -170,7 +181,6 @@ function construirCuadro(pistas) {
         esqueleto.push(parejas);
     }
 
-    // ----- 2. Función de coste (coincidencias en pista) -----
     function contarCoincidencias(asig) {
         var coinc = {};
         for (var i = 0; i < todos.length; i++)
@@ -195,7 +205,6 @@ function construirCuadro(pistas) {
     }
 
     function costeCoincidencias(coinc) {
-        // Penalización cuadrática: (v-1)^2 * 1000 para v >= 2
         var coste = 0;
         for (var k in coinc) {
             var v = coinc[k];
@@ -204,12 +213,10 @@ function construirCuadro(pistas) {
         return coste;
     }
 
-    // ----- 3. Asignación inicial aleatoria -----
     function asignacionAleatoria() {
         var asig = [];
         for (var j = 0; j < nJornadas; j++) {
             var parejas = esqueleto[j].slice();
-            // Barajar
             for (var i = parejas.length - 1; i > 0; i--) {
                 var k = Math.floor(Math.random() * (i + 1));
                 var tmp = parejas[i]; parejas[i] = parejas[k]; parejas[k] = tmp;
@@ -219,12 +226,8 @@ function construirCuadro(pistas) {
         return asig;
     }
 
-    // ----- 4. Búsqueda local con reinicios múltiples -----
-    // Ejecutamos varias "rondas" desde puntos de partida distintos
-    // para escapar de mínimos locales.
     var RONDAS = 5;
     var INTENTOS_POR_RONDA = 30000;
-
     var mejorGlobal = null;
     var mejorCosteGlobal = Infinity;
 
@@ -234,16 +237,12 @@ function construirCuadro(pistas) {
         var mejorCosteLocal = costeCoincidencias(contarCoincidencias(mejorLocal));
 
         for (var intento = 0; intento < INTENTOS_POR_RONDA; intento++) {
-            // Copia del mejor local
             var prueba = mejorLocal.map(function(j) { return j.slice(); });
-
-            // Elegir jornada y dos posiciones
             var j = Math.floor(Math.random() * nJornadas);
             var idxA = Math.floor(Math.random() * prueba[j].length);
             var idxB = Math.floor(Math.random() * prueba[j].length);
             if (idxA === idxB) continue;
 
-            // Intercambiar
             var tmp = prueba[j][idxA];
             prueba[j][idxA] = prueba[j][idxB];
             prueba[j][idxB] = tmp;
@@ -251,18 +250,17 @@ function construirCuadro(pistas) {
             var c = contarCoincidencias(prueba);
             var coste = costeCoincidencias(c);
 
-            // Aceptar si mejora (o empatar con probabilidad para escapar de mesetas)
             if (coste < mejorCosteLocal || (coste === mejorCosteLocal && Math.random() < 0.3)) {
                 mejorCosteLocal = coste;
                 mejorLocal = prueba;
-                if (coste === 0) break; // óptimo alcanzado en esta ronda
+                if (coste === 0) break;
             }
         }
 
         if (mejorCosteLocal < mejorCosteGlobal) {
             mejorCosteGlobal = mejorCosteLocal;
             mejorGlobal = mejorLocal;
-            if (mejorCosteGlobal === 0) break; // óptimo global
+            if (mejorCosteGlobal === 0) break;
         }
     }
 
@@ -270,7 +268,7 @@ function construirCuadro(pistas) {
 }
 
 // ============================================================
-// GENERAR CUADRO EN UI
+// GENERAR CUADRO
 // ============================================================
 function generarCuadro() {
     try {
@@ -289,16 +287,9 @@ function generarCuadro() {
             jugadoresGlobal['d' + i] = document.getElementById('d' + i).value.toUpperCase() || ('D' + i);
 
         var res = construirCuadro(pistas);
-
         console.log('Coste de coincidencias:', res.coste);
-        if (res.coste === 0) {
-            console.log('✅ ÓPTIMO: ningún par coincide más de 1 vez en pista.');
-        } else {
-            console.log('ℹ️ Mejor solución encontrada con coste ' + res.coste + '. Cada 1000 puntos = un par coincidiendo 2 veces de más.');
-        }
 
         var jornadas = res.jornadas;
-
         partidosData = [];
         var html = '';
 
@@ -320,8 +311,10 @@ function generarCuadro() {
                 html += '<span class="p-reves">' + jugadoresGlobal[pA[0]] + '</span>';
                 html += '<span class="p-drive">' + jugadoresGlobal[pA[1]] + '</span>';
                 html += '</div>';
+                html += '<div class="marcador">';
                 html += '<input type="number" class="score-input" id="scA_' + id + '" onchange="registrar(\'' + id + '\')">';
                 html += '<input type="number" class="score-input" id="scB_' + id + '" onchange="registrar(\'' + id + '\')">';
+                html += '</div>';
                 html += '<div class="pareja-box">';
                 html += '<span class="p-reves">' + jugadoresGlobal[pB[0]] + '</span>';
                 html += '<span class="p-drive">' + jugadoresGlobal[pB[1]] + '</span>';
@@ -335,12 +328,394 @@ function generarCuadro() {
         document.getElementById('cuadro').innerHTML = html;
         document.getElementById('sectionPartidos').style.display = 'block';
         document.getElementById('sectionRanking').style.display = 'block';
+        document.getElementById('btnCompartir').style.display = 'block';
 
         actualizarRanking();
     } catch (err) {
         console.error('Error:', err);
         alert('Error: ' + err.message);
     }
+}
+
+// ============================================================
+// COMPARTIR COMO IMAGEN
+// ============================================================
+function compartirCuadro() {
+    try {
+        var pistas = parseInt(document.getElementById('inPistas').value);
+        var cfg = configPorPistas(pistas);
+        var torneo = document.getElementById('inTorneo').value || 'TORNEO RMCT';
+        var fecha = formatearFecha(document.getElementById('inEvento').value);
+        var cat = document.getElementById('inCat').value || '';
+        var hora = document.getElementById('inHora').value || '';
+
+        var jornadas = document.querySelectorAll('#cuadro .ronda-card');
+        if (jornadas.length === 0) {
+            alert('Genera primero el cuadro.');
+            return;
+        }
+
+        // ============================================================
+        // CONFIGURACIÓN COMPACTA
+        // ============================================================
+        var ancho = 950;
+        var padding = 20;
+
+        var altoCabecera = 140;
+        var altoListaJugadores = 90;
+        var altoJornada = 42;
+        var altoPista = 85;
+        var separacionJornada = 10;
+        var espacioEntreBloques = 10;
+
+        var fuenteTitulo = 'bold 34px Arial, sans-serif';
+        var fuenteBadge = 'bold 15px Arial, sans-serif';
+        var fuenteListaTitulo = 'bold 17px Arial, sans-serif';
+        var fuenteListaJugador = 'bold 18px Arial, sans-serif';
+        var fuenteJornada = 'bold 22px Arial, sans-serif';
+        var fuentePistaLabel = 'bold 12px Arial, sans-serif';
+        var fuenteJugador = 'bold 28px Arial, sans-serif';
+        var fuenteVS = 'bold 18px Arial, sans-serif';
+
+        // ============================================================
+        // CARGAR LOGO
+        // ============================================================
+        var logoImg = new Image();
+        logoImg.crossOrigin = 'anonymous';
+        logoImg.src = 'https://www.murciaclubdetenis.es/wp-content/uploads/2019/10/logo-menu-1x2.png';
+
+        logoImg.onload = function() {
+            generarImagen(logoImg);
+        };
+        logoImg.onerror = function() {
+            console.warn('No se pudo cargar el logo. Generando imagen sin logo.');
+            generarImagen(null);
+        };
+
+        // ============================================================
+        // GENERAR IMAGEN
+        // ============================================================
+        function generarImagen(logoImg) {
+
+            function dibujarCabecera(ctx, offsetY) {
+                var y = offsetY;
+
+                ctx.fillStyle = '#ffffff';
+                roundRect(ctx, padding, y, ancho - padding*2, altoCabecera, 14);
+                ctx.fill();
+
+                ctx.fillStyle = '#d9b46b';
+                ctx.fillRect(padding, y + altoCabecera - 4, ancho - padding*2, 4);
+
+                var logoSize = 70;
+                var logoX = padding + 15;
+                var logoY = y + (altoCabecera - logoSize) / 2;
+
+                if (logoImg) {
+                    ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+                }
+
+                var textoX = logoX + logoSize + 15;
+
+                ctx.fillStyle = '#001b3d';
+                ctx.font = fuenteTitulo;
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(torneo.toUpperCase(), textoX, y + 38);
+
+                var badges = [fecha];
+                if (cat) badges.push('CAT: ' + cat);
+                if (hora) badges.push('H: ' + hora);
+
+                var badgeY = y + 75;
+                var badgeHeight = 32;
+                var badgePadding = 14;
+                var espacio = 8;
+
+                ctx.font = fuenteBadge;
+                var anchos = [];
+                for (var i = 0; i < badges.length; i++) {
+                    var w = ctx.measureText(badges[i]).width + badgePadding * 2;
+                    anchos.push(w);
+                }
+
+                var xBadge = textoX;
+                for (var i = 0; i < badges.length; i++) {
+                    var w = anchos[i];
+                    ctx.fillStyle = '#0057b8';
+                    roundRect(ctx, xBadge, badgeY, w, badgeHeight, 16);
+                    ctx.fill();
+                    ctx.fillStyle = '#ffffff';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(badges[i], xBadge + w/2, badgeY + badgeHeight/2 + 1);
+                    xBadge += w + espacio;
+                }
+
+                return y + altoCabecera + espacioEntreBloques;
+            }
+
+            function dibujarListaJugadores(ctx, offsetY) {
+                var y = offsetY;
+
+                ctx.fillStyle = '#ffffff';
+                roundRect(ctx, padding, y, ancho - padding*2, altoListaJugadores, 14);
+                ctx.fill();
+
+                ctx.font = fuenteListaTitulo;
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#0056b3';
+                ctx.textAlign = 'left';
+                ctx.fillText('REVÉS:', padding + 15, y + 28);
+
+                ctx.fillStyle = '#b35f00';
+                ctx.textAlign = 'left';
+                ctx.fillText('DRIVE:', padding + 15, y + 64);
+
+                var listaReveses = [];
+                var listaDrives = [];
+                for (var i = 0; i < cfg.nRev; i++) {
+                    if (jugadoresGlobal['r' + i]) listaReveses.push(jugadoresGlobal['r' + i]);
+                }
+                for (var i = 0; i < cfg.nDri; i++) {
+                    if (jugadoresGlobal['d' + i]) listaDrives.push(jugadoresGlobal['d' + i]);
+                }
+
+                var textoReveses = listaReveses.join('  ·  ');
+                var textoDrives = listaDrives.join('  ·  ');
+
+                ctx.font = fuenteListaJugador;
+                ctx.fillStyle = '#003a7a';
+                ctx.textAlign = 'left';
+                ctx.fillText(textoReveses, padding + 100, y + 28);
+
+                ctx.fillStyle = '#7a3d00';
+                ctx.textAlign = 'left';
+                ctx.fillText(textoDrives, padding + 100, y + 64);
+
+                return y + altoListaJugadores + espacioEntreBloques;
+            }
+
+            function dibujarJornadas(ctx, listaJornadas, offsetY) {
+                var y = offsetY;
+
+                for (var idx = 0; idx < listaJornadas.length; idx++) {
+                    var jornadaInfo = listaJornadas[idx];
+                    var ronda = jornadaInfo.elemento;
+                    var numeroJornada = jornadaInfo.numero;
+
+                    ctx.fillStyle = '#001b3d';
+                    roundRect(ctx, padding, y, ancho - padding*2, altoJornada, 10);
+                    ctx.fill();
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = fuenteJornada;
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('JORNADA ' + numeroJornada, padding + 20, y + altoJornada/2 + 1);
+                    y += altoJornada + 5;
+
+                    var pistasHTML = ronda.querySelectorAll('.pista-box');
+                    for (var pi = 0; pi < pistasHTML.length; pi++) {
+                        var pista = pistasHTML[pi];
+
+                        ctx.fillStyle = '#ffffff';
+                        roundRect(ctx, padding, y, ancho - padding*2, altoPista - 6, 10);
+                        ctx.fill();
+
+                        ctx.fillStyle = '#999999';
+                        ctx.font = fuentePistaLabel;
+                        ctx.textAlign = 'left';
+                        ctx.textBaseline = 'top';
+                        var pistaLabel = pista.querySelector('.pista-label');
+                        if (pistaLabel) {
+                            ctx.fillText(pistaLabel.innerText, padding + 12, y + 8);
+                        }
+
+                        var parejas = pista.querySelectorAll('.pareja-box');
+                        var centroX = ancho / 2;
+                        var filaY = y + 47;
+
+                        if (parejas.length >= 2) {
+                            var pA = parejas[0].querySelectorAll('span');
+                            var pB = parejas[1].querySelectorAll('span');
+
+                            var xDerechaA = centroX - 35;
+                            ctx.textAlign = 'right';
+                            ctx.textBaseline = 'middle';
+
+                            ctx.fillStyle = '#0056b3';
+                            ctx.font = fuenteJugador;
+                            ctx.fillText(pA[0] ? pA[0].innerText : '', xDerechaA, filaY - 14);
+
+                            ctx.fillStyle = '#b35f00';
+                            ctx.font = fuenteJugador;
+                            ctx.fillText(pA[1] ? pA[1].innerText : '', xDerechaA, filaY + 14);
+
+                            ctx.fillStyle = '#cccccc';
+                            ctx.font = fuenteVS;
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText('VS', centroX, filaY);
+
+                            var xIzquierdaB = centroX + 35;
+                            ctx.textAlign = 'left';
+
+                            ctx.fillStyle = '#0056b3';
+                            ctx.font = fuenteJugador;
+                            ctx.fillText(pB[0] ? pB[0].innerText : '', xIzquierdaB, filaY - 14);
+
+                            ctx.fillStyle = '#b35f00';
+                            ctx.font = fuenteJugador;
+                            ctx.fillText(pB[1] ? pB[1].innerText : '', xIzquierdaB, filaY + 14);
+                        }
+
+                        y += altoPista;
+                    }
+
+                    y += separacionJornada;
+                }
+
+                return y;
+            }
+
+            // ============================================================
+            // CÁLCULO DE ALTURA
+            // ============================================================
+            var alturaCabeceraLista = altoCabecera + espacioEntreBloques + altoListaJugadores + espacioEntreBloques;
+            var alturaUnaJornada = altoJornada + 5 + (cfg.pistas * altoPista) + separacionJornada;
+            var alturaTotal = padding + alturaCabeceraLista + (jornadas.length * alturaUnaJornada) + padding;
+
+            var ALTURA_MAXIMA = 5000;
+
+            if (alturaTotal <= ALTURA_MAXIMA) {
+                // ---- UNA IMAGEN ----
+                var canvas = document.createElement('canvas');
+                canvas.width = ancho;
+                canvas.height = alturaTotal;
+                var ctx = canvas.getContext('2d');
+
+                ctx.fillStyle = '#f4f7fb';
+                ctx.fillRect(0, 0, ancho, alturaTotal);
+
+                var y = padding;
+                y = dibujarCabecera(ctx, y);
+                y = dibujarListaJugadores(ctx, y);
+
+                var listaJornadas = [];
+                for (var i = 0; i < jornadas.length; i++) {
+                    listaJornadas.push({ elemento: jornadas[i], numero: i + 1 });
+                }
+                y = dibujarJornadas(ctx, listaJornadas, y);
+
+                exportarCanvas(canvas, torneo, 'cuadro-americano.png');
+            } else {
+                // ---- DOS IMÁGENES ----
+                var mitad = Math.ceil(jornadas.length / 2);
+
+                var jornadas1 = [];
+                for (var i = 0; i < mitad; i++) {
+                    jornadas1.push({ elemento: jornadas[i], numero: i + 1 });
+                }
+                var altura1 = padding + alturaCabeceraLista + (jornadas1.length * alturaUnaJornada) + padding;
+
+                var canvas1 = document.createElement('canvas');
+                canvas1.width = ancho;
+                canvas1.height = altura1;
+                var ctx1 = canvas1.getContext('2d');
+                ctx1.fillStyle = '#f4f7fb';
+                ctx1.fillRect(0, 0, ancho, altura1);
+
+                var y1 = padding;
+                y1 = dibujarCabecera(ctx1, y1);
+                y1 = dibujarListaJugadores(ctx1, y1);
+                y1 = dibujarJornadas(ctx1, jornadas1, y1);
+
+                exportarCanvas(canvas1, torneo, 'cuadro-americano-parte1.png');
+
+                var jornadas2 = [];
+                for (var i = mitad; i < jornadas.length; i++) {
+                    jornadas2.push({ elemento: jornadas[i], numero: i + 1 });
+                }
+                var altura2 = padding + 50 + (jornadas2.length * alturaUnaJornada) + padding;
+
+                var canvas2 = document.createElement('canvas');
+                canvas2.width = ancho;
+                canvas2.height = altura2;
+                var ctx2 = canvas2.getContext('2d');
+                ctx2.fillStyle = '#f4f7fb';
+                ctx2.fillRect(0, 0, ancho, altura2);
+
+                var y2 = padding;
+                ctx2.fillStyle = '#001b3d';
+                roundRect(ctx2, padding, y2, ancho - padding*2, 44, 10);
+                ctx2.fill();
+                ctx2.fillStyle = '#ffffff';
+                ctx2.font = fuenteJornada;
+                ctx2.textAlign = 'center';
+                ctx2.textBaseline = 'middle';
+                ctx2.fillText(torneo.toUpperCase() + ' · CONTINUACIÓN', ancho/2, y2 + 22);
+                y2 += 44 + espacioEntreBloques;
+
+                y2 = dibujarJornadas(ctx2, jornadas2, y2);
+
+                setTimeout(function() {
+                    exportarCanvas(canvas2, torneo, 'cuadro-americano-parte2.png');
+                }, 900);
+            }
+        }
+
+    } catch (err) {
+        console.error('Error generando imagen:', err);
+        alert('Error generando la imagen: ' + err.message);
+    }
+}
+
+// ============================================================
+// EXPORTAR CANVAS
+// ============================================================
+function exportarCanvas(canvas, torneo, nombreArchivo) {
+    canvas.toBlob(function(blob) {
+        var archivo = new File([blob], nombreArchivo, { type: 'image/png' });
+
+        if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
+            navigator.share({
+                files: [archivo],
+                title: 'Cuadro Americano',
+                text: 'Cuadro del torneo: ' + torneo
+            }).catch(function(err) {
+                if (err.name !== 'AbortError') {
+                    descargarImagen(blob);
+                }
+            });
+        } else {
+            descargarImagen(blob);
+        }
+    }, 'image/png');
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+}
+
+function descargarImagen(blob) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'cuadro-americano.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
 }
 
 // ============================================================

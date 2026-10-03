@@ -1,207 +1,44 @@
-Tienes razón, se me coló un bug. El problema está en la función generarEsquemaOptimo: cuando se ejecuta el Monte Carlo, si mejor sigue siendo null (porque no se ha encontrado ningún candidato válido en las 20.000 iteraciones, lo cual puede pasar con según qué configuraciones), se rompe al hacer .map() sobre null.
-
-Además, hay otro problema: en generarAsignacion() estoy accediendo a parejas[p*2] y parejas[p*2+1] sin verificar que existan. Y como el esqueleto tiene exactamente nRev parejas por jornada, y nRev = pistas * 2 (con 8 jugadores: 4 reveses y 2 pistas → 2*2 = 4 parejas ✅), en teoría cuadra. Pero si hay algún desajuste, peta.
-
-Voy a blindar la función y añadir verificación. Aquí tienes el HTML completo corregido:
-
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>RMCT - Americano Revés vs Drive</title>
-    <style>
-        :root {
-            --rmct-blue: #0057b8;
-            --rmct-dark: #001b3d;
-            --rmct-gold: #d9b46b;
-            --reves-bg: #e3f2ff;
-            --drive-bg: #fdf2e9;
-        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            background: linear-gradient(135deg, var(--rmct-dark) 0%, var(--rmct-blue) 100%);
-            margin: 0;
-            padding: 10px;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: #f4f7fb;
-            border-radius: 25px;
-            overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-        }
-
-        .header {
-            background: white;
-            padding: 15px;
-            text-align: center;
-            border-bottom: 4px solid var(--rmct-gold);
-        }
-
-        .header img { width: 160px; margin-bottom: 8px; }
-
-        .tournament-title {
-            margin: 0;
-            font-size: 1.2rem;
-            color: var(--rmct-dark);
-            font-weight: 800;
-            text-transform: uppercase;
-        }
-
-        .badges {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 5px;
-            margin-top: 8px;
-        }
-
-        .badge {
-            background: var(--rmct-blue);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 50px;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-
-        .section { padding: 15px; border-bottom: 1px solid #ddd; }
-
-        .section-title {
-            font-size: 0.85rem;
-            font-weight: 800;
-            color: var(--rmct-blue);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            text-transform: uppercase;
-        }
-
-        .player-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        .column-label {
-            font-size: 0.65rem;
-            font-weight: 900;
-            text-align: center;
-            color: #666;
-            margin-bottom: 4px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            outline: none;
-            text-transform: uppercase;
-            font-weight: 600;
-            background: white;
-        }
-
-        .in-reves { border-left: 4px solid #0077ff; background: var(--reves-bg); }
-        .in-drive { border-left: 4px solid #ff8800; background: var(--drive-bg); }
-
-        .btn {
-            background: var(--rmct-blue);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 50px;
-            width: 100%;
-            font-weight: 800;
-            cursor: pointer;
-            margin-top: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-
-        .ronda-card {
-            background: white;
-            margin-bottom: 15px;
-            border-radius: 18px;
-            overflow: hidden;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-        }
-
-        .ronda-header {
-            background: var(--rmct-dark);
-            color: white;
-            padding: 8px 15px;
-            font-weight: 700;
-            font-size: 0.9rem;
-        }
-
-        .pista-box { padding: 12px; border-bottom: 1px dashed #eee; }
-        .pista-label { font-size: 0.65rem; font-weight: 800; color: #999; margin-bottom: 5px; display: block; }
-
-        .match-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-        }
-
-        .pareja-box {
-            flex: 1;
-            background: #f8f9fa;
-            padding: 8px;
-            border-radius: 10px;
-            text-align: center;
-            font-size: 0.75rem;
-            line-height: 1.2;
-        }
-
-        .pareja-box span { display: block; font-weight: 700; }
-        .p-reves { color: #0056b3; }
-        .p-drive { color: #b35f00; }
-
-        .score-input {
-            width: 40px;
-            padding: 6px 0;
-            text-align: center;
-            font-weight: 900;
-            font-size: 1rem;
-            border: 2px solid #ddd;
-        }
-
-        .rank-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 15px;
-            background: white;
-            margin-bottom: 5px;
-            border-radius: 12px;
-        }
-        .rank-info { display: flex; align-items: center; gap: 10px; }
-        .rank-pos { font-weight: 900; color: var(--rmct-gold); width: 20px; }
-        .rank-name { font-weight: 700; font-size: 0.8rem; }
-        .rank-stats { font-family: monospace; font-weight: 700; font-size: 0.85rem; }
-
-        .info-box {
-            background: #fffbe6;
-            border-left: 4px solid var(--rmct-gold);
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 0.7rem;
-            color: #666;
-            margin-top: 10px;
-            line-height: 1.4;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>RMCT - Americano Revés vs Drive</title>
+<style>
+:root{--rmct-blue:#0057b8;--rmct-dark:#001b3d;--rmct-gold:#d9b46b;--reves-bg:#e3f2ff;--drive-bg:#fdf2e9}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:linear-gradient(135deg,var(--rmct-dark) 0%,var(--rmct-blue) 100%);margin:0;padding:10px;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+.container{max-width:600px;margin:0 auto;background:#f4f7fb;border-radius:25px;overflow:hidden;box-shadow:0 15px 35px rgba(0,0,0,.4)}
+.header{background:#fff;padding:15px;text-align:center;border-bottom:4px solid var(--rmct-gold)}
+.header img{width:160px;margin-bottom:8px}
+.tournament-title{margin:0;font-size:1.2rem;color:var(--rmct-dark);font-weight:800;text-transform:uppercase}
+.badges{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin-top:8px}
+.badge{background:var(--rmct-blue);color:#fff;padding:4px 10px;border-radius:50px;font-size:.7rem;font-weight:600}
+.section{padding:15px;border-bottom:1px solid #ddd}
+.section-title{font-size:.85rem;font-weight:800;color:var(--rmct-blue);margin-bottom:12px;text-transform:uppercase}
+.player-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.column-label{font-size:.65rem;font-weight:900;text-align:center;color:#666;margin-bottom:4px}
+input,select{width:100%;padding:10px;border:1px solid #ccc;border-radius:10px;font-size:.8rem;outline:none;text-transform:uppercase;font-weight:600;background:#fff}
+.in-reves{border-left:4px solid #0077ff;background:var(--reves-bg)}
+.in-drive{border-left:4px solid #ff8800;background:var(--drive-bg)}
+.btn{background:var(--rmct-blue);color:#fff;border:none;padding:14px;border-radius:50px;width:100%;font-weight:800;cursor:pointer;margin-top:15px;box-shadow:0 4px 10px rgba(0,0,0,.2)}
+.ronda-card{background:#fff;margin-bottom:15px;border-radius:18px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,.05)}
+.ronda-header{background:var(--rmct-dark);color:#fff;padding:8px 15px;font-weight:700;font-size:.9rem}
+.pista-box{padding:12px;border-bottom:1px dashed #eee}
+.pista-label{font-size:.65rem;font-weight:800;color:#999;margin-bottom:5px;display:block}
+.match-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pareja-box{flex:1;background:#f8f9fa;padding:8px;border-radius:10px;text-align:center;font-size:.75rem;line-height:1.2}
+.pareja-box span{display:block;font-weight:700}
+.p-reves{color:#0056b3}
+.p-drive{color:#b35f00}
+.score-input{width:40px;padding:6px 0;text-align:center;font-weight:900;font-size:1rem;border:2px solid #ddd}
+.rank-item{display:flex;justify-content:space-between;align-items:center;padding:10px 15px;background:#fff;margin-bottom:5px;border-radius:12px}
+.rank-info{display:flex;align-items:center;gap:10px}
+.rank-pos{font-weight:900;color:var(--rmct-gold);width:20px}
+.rank-name{font-weight:700;font-size:.8rem}
+.rank-stats{font-family:monospace;font-weight:700;font-size:.85rem}
+.info-box{background:#fffbe6;border-left:4px solid var(--rmct-gold);padding:8px 12px;border-radius:8px;font-size:.7rem;color:#666;margin-top:10px;line-height:1.4}
+</style>
 </head>
 <body>
 
@@ -219,22 +56,20 @@ Voy a blindar la función y añadir verificación. Aquí tienes el HTML completo
 
     <div class="section">
         <div class="section-title">⚙️ Datos y Jugadores</div>
-        <div class="player-grid" style="margin-bottom: 15px;">
-            <input type="text" id="inTorneo" value="TORNEO RMCT" placeholder="Torneo">
-            <input type="text" id="inCat" value="3ª/4ª" placeholder="Categoría">
-            <input type="date" id="inEvento" placeholder="Fecha">
-            <input type="time" id="inHora" value="10:00" placeholder="Hora">
+        <div class="player-grid" style="margin-bottom:15px">
+            <input type="text" id="inTorneo" value="TORNEO RMCT">
+            <input type="text" id="inCat" value="3ª/4ª">
+            <input type="date" id="inEvento">
+            <input type="time" id="inHora" value="10:00">
         </div>
-
-        <div style="margin-bottom: 15px;">
-            <div class="column-label" style="text-align:left; margin-bottom:6px;">FORMATO DEL TORNEO</div>
+        <div style="margin-bottom:15px">
+            <div class="column-label" style="text-align:left;margin-bottom:6px">FORMATO DEL TORNEO</div>
             <select id="inPistas" onchange="actualizarVisibilidadJugadores()">
-                <option value="2" selected>2 PISTAS · 8 JUGADORES (4 revés + 4 drive)</option>
-                <option value="3">3 PISTAS · 12 JUGADORES (6 revés + 6 drive)</option>
-                <option value="4">4 PISTAS · 16 JUGADORES (8 revés + 8 drive)</option>
+                <option value="2" selected>2 PISTAS · 8 JUGADORES</option>
+                <option value="3">3 PISTAS · 12 JUGADORES</option>
+                <option value="4">4 PISTAS · 16 JUGADORES</option>
             </select>
         </div>
-
         <div class="player-grid">
             <div>
                 <div class="column-label">REVESES</div>
@@ -242,10 +77,10 @@ Voy a blindar la función y añadir verificación. Aquí tienes el HTML completo
                 <input type="text" class="in-reves" id="r1" value="3">
                 <input type="text" class="in-reves" id="r2" value="5">
                 <input type="text" class="in-reves" id="r3" value="7">
-                <input type="text" class="in-reves" id="r4" value="9" style="display:none;">
-                <input type="text" class="in-reves" id="r5" value="11" style="display:none;">
-                <input type="text" class="in-reves" id="r6" value="13" style="display:none;">
-                <input type="text" class="in-reves" id="r7" value="15" style="display:none;">
+                <input type="text" class="in-reves" id="r4" value="9" style="display:none">
+                <input type="text" class="in-reves" id="r5" value="11" style="display:none">
+                <input type="text" class="in-reves" id="r6" value="13" style="display:none">
+                <input type="text" class="in-reves" id="r7" value="15" style="display:none">
             </div>
             <div>
                 <div class="column-label">DRIVES</div>
@@ -253,394 +88,287 @@ Voy a blindar la función y añadir verificación. Aquí tienes el HTML completo
                 <input type="text" class="in-drive" id="d1" value="4">
                 <input type="text" class="in-drive" id="d2" value="6">
                 <input type="text" class="in-drive" id="d3" value="8">
-                <input type="text" class="in-drive" id="d4" value="10" style="display:none;">
-                <input type="text" class="in-drive" id="d5" value="12" style="display:none;">
-                <input type="text" class="in-drive" id="d6" value="14" style="display:none;">
-                <input type="text" class="in-drive" id="d7" value="16" style="display:none;">
+                <input type="text" class="in-drive" id="d4" value="10" style="display:none">
+                <input type="text" class="in-drive" id="d5" value="12" style="display:none">
+                <input type="text" class="in-drive" id="d6" value="14" style="display:none">
+                <input type="text" class="in-drive" id="d7" value="16" style="display:none">
             </div>
         </div>
         <button class="btn" onclick="generarCuadro()">🎯 GENERAR CUADRO</button>
-        <div class="info-box" id="infoBox">
-            ℹ️ 2 pistas, 8 jugadores (4 revés + 4 drive), 4 jornadas. Todos juegan todas las jornadas.
-        </div>
+        <div class="info-box" id="infoBox">ℹ️ 2 pistas, 8 jugadores, 4 jornadas.</div>
     </div>
 
-    <div class="section" id="sectionPartidos" style="display:none;">
+    <div class="section" id="sectionPartidos" style="display:none">
         <div class="section-title">🎾 Jornadas de Juego</div>
         <div id="cuadro"></div>
     </div>
 
-    <div class="section" id="sectionRanking" style="display:none;">
+    <div class="section" id="sectionRanking" style="display:none">
         <div class="section-title">🏆 Clasificación Individual</div>
         <div id="ranking"></div>
-        <button class="btn" style="background:#666;" onclick="window.location.reload()">🔄 REINICIAR</button>
+        <button class="btn" style="background:#666" onclick="window.location.reload()">🔄 REINICIAR</button>
     </div>
 </div>
 
 <script>
-    let partidosData = [];
-    let jugadoresGlobal = {};
+// ============================================================
+// VARIABLES GLOBALES
+// ============================================================
+var partidosData = [];
+var jugadoresGlobal = {};
+var N_JORNADAS = 4;
 
-    const N_JORNADAS = 4;
+// ============================================================
+// UTILIDADES
+// ============================================================
+function configPorPistas(pistas) {
+    var nJug = pistas * 4;
+    return {
+        pistas: pistas,
+        nJug: nJug,
+        nRev: nJug / 2,
+        nDri: nJug / 2,
+        nJornadas: N_JORNADAS
+    };
+}
 
-    // ============================================================
-    // CONFIGURACIÓN SEGÚN PISTAS
-    // ============================================================
-    function configPorPistas(pistas) {
-        const nJug = pistas * 4;
-        const nRev = nJug / 2;
-        const nDri = nJug / 2;
-        return { pistas, nJug, nRev, nDri, nJornadas: N_JORNADAS };
+function formatearFecha(fechaInput) {
+    if (!fechaInput) return 'FECHA';
+    var partes = fechaInput.split('-');
+    var y = parseInt(partes[0]), m = parseInt(partes[1]), d = parseInt(partes[2]);
+    var fechaObj = new Date(y, m - 1, d);
+    var dias = ['DOMINGO','LUNES','MARTES','MIÉRCOLES','JUEVES','VIERNES','SÁBADO'];
+    var meses = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+    return dias[fechaObj.getDay()] + ' ' + d + ' DE ' + meses[fechaObj.getMonth()];
+}
+
+function actualizarVisibilidadJugadores() {
+    var pistas = parseInt(document.getElementById('inPistas').value);
+    var cfg = configPorPistas(pistas);
+    for (var i = 0; i < 8; i++) {
+        var r = document.getElementById('r' + i);
+        var d = document.getElementById('d' + i);
+        if (r) r.style.display = i < cfg.nRev ? 'block' : 'none';
+        if (d) d.style.display = i < cfg.nDri ? 'block' : 'none';
+    }
+    document.getElementById('dispPistas').innerText = cfg.pistas + ' PISTAS · ' + cfg.nJug + ' JUG';
+    document.getElementById('infoBox').innerHTML = 'ℹ️ ' + cfg.pistas + ' pistas, ' + cfg.nJug + ' jugadores (' + cfg.nRev + ' revés + ' + cfg.nDri + ' drive), ' + cfg.nJornadas + ' jornadas.';
+}
+
+// ============================================================
+// ALGORITMO: Round-robin + asignación de pistas equilibrada
+// ============================================================
+function construirCuadro(pistas) {
+    var cfg = configPorPistas(pistas);
+    var nRev = cfg.nRev;
+    var nDri = cfg.nDri;
+    var nJornadas = cfg.nJornadas;
+
+    var reveses = [];
+    var drives = [];
+    for (var i = 0; i < nRev; i++) reveses.push('r' + i);
+    for (var i = 0; i < nDri; i++) drives.push('d' + i);
+
+    // ------------------------------------------------------------
+    // 1. Generar parejas por jornada con round-robin modular
+    //    Jornada j: revés i con drive (i + j) % nDri
+    // ------------------------------------------------------------
+    var parejasPorJornada = [];
+    for (var j = 0; j < nJornadas; j++) {
+        var parejas = [];
+        for (var i = 0; i < nRev; i++) {
+            parejas.push([reveses[i], drives[(i + j) % nDri]]);
+        }
+        parejasPorJornada.push(parejas);
     }
 
-    function actualizarVisibilidadJugadores() {
-        const select = document.getElementById('inPistas');
-        const pistas = parseInt(select.value);
-        const cfg = configPorPistas(pistas);
+    // ------------------------------------------------------------
+    // 2. Asignar cada pareja a una pista
+    //    Regla: pista = (idxRev + j) % pistas
+    //    Así cada revés (y su drive) pasan por todas las pistas
+    //    de forma equilibrada.
+    // ------------------------------------------------------------
+    var resultado = [];
+    for (var j = 0; j < nJornadas; j++) {
+        // Array de pistas, cada una con sus parejas
+        var pistasArr = [];
+        for (var p = 0; p < pistas; p++) pistasArr.push([]);
 
-        for (let i = 0; i < 8; i++) {
-            const r = document.getElementById(`r${i}`);
-            const d = document.getElementById(`d${i}`);
-            if (r) r.style.display = i < cfg.nRev ? 'block' : 'none';
-            if (d) d.style.display = i < cfg.nDri ? 'block' : 'none';
+        // Asignar cada pareja a su pista
+        for (var i = 0; i < nRev; i++) {
+            var idxRev = i;
+            var pistaIdx = (idxRev + j) % pistas;
+            pistasArr[pistaIdx].push(parejasPorJornada[j][i]);
         }
 
-        document.getElementById('dispPistas').innerText = `${cfg.pistas} PISTAS · ${cfg.nJug} JUG`;
-        document.getElementById('infoBox').innerHTML =
-            `ℹ️ ${cfg.pistas} pistas, ${cfg.nJug} jugadores (${cfg.nRev} revés + ${cfg.nDri} drive), ${cfg.nJornadas} jornadas. Todos juegan todas las jornadas.`;
+        // Ahora cada pista debe tener exactamente 2 parejas.
+        // Aplanar en formato [pA1, pB1, pA2, pB2, ...]
+        var plana = [];
+        for (var p = 0; p < pistas; p++) {
+            if (pistasArr[p].length !== 2) {
+                // Si por lo que sea no hay 2, rellenamos con lo que haya
+                // Esto no debería pasar, pero por seguridad
+                console.warn('Pista ' + p + ' jornada ' + j + ' tiene ' + pistasArr[p].length + ' parejas');
+            }
+            for (var k = 0; k < pistasArr[p].length; k++) {
+                plana.push(pistasArr[p][k]);
+            }
+        }
+        resultado.push(plana);
     }
 
-    function formatearFecha(fechaInput) {
-        if (!fechaInput) return 'FECHA';
-        const [y, m, d] = fechaInput.split('-');
-        const fechaObj = new Date(y, m - 1, d);
-        const dias = ['DOMINGO','LUNES','MARTES','MIÉRCOLES','JUEVES','VIERNES','SÁBADO'];
-        const meses = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
-        return `${dias[fechaObj.getDay()]} ${parseInt(d)} DE ${meses[fechaObj.getMonth()]}`;
+    return { jornadas: resultado, cfg: cfg };
+}
+
+// ============================================================
+// GENERAR CUADRO EN UI
+// ============================================================
+function generarCuadro() {
+    try {
+        // Actualizar cabecera
+        document.getElementById('dispTorneo').innerText = document.getElementById('inTorneo').value;
+        document.getElementById('dispEv').innerText = formatearFecha(document.getElementById('inEvento').value);
+        document.getElementById('dispCat').innerText = 'CAT: ' + document.getElementById('inCat').value;
+        document.getElementById('dispHora').innerText = 'H: ' + document.getElementById('inHora').value;
+
+        var pistas = parseInt(document.getElementById('inPistas').value);
+        var cfg = configPorPistas(pistas);
+
+        // Recoger nombres
+        jugadoresGlobal = {};
+        for (var i = 0; i < cfg.nRev; i++) {
+            jugadoresGlobal['r' + i] = document.getElementById('r' + i).value.toUpperCase() || ('R' + i);
+        }
+        for (var i = 0; i < cfg.nDri; i++) {
+            jugadoresGlobal['d' + i] = document.getElementById('d' + i).value.toUpperCase() || ('D' + i);
+        }
+
+        // Construir el cuadro
+        var res = construirCuadro(pistas);
+        var jornadas = res.jornadas;
+
+        // Renderizar
+        partidosData = [];
+        var html = '';
+
+        for (var idx = 0; idx < jornadas.length; idx++) {
+            var parejas = jornadas[idx];
+            html += '<div class="ronda-card"><div class="ronda-header">JORNADA ' + (idx + 1) + '</div>';
+
+            for (var pi = 0; pi < pistas; pi++) {
+                var pA = parejas[pi * 2];
+                var pB = parejas[pi * 2 + 1];
+                if (!pA || !pB) continue;
+                var id = 'j' + idx + 'p' + pi;
+                partidosData.push({ id: id, jA: pA, jB: pB, sA: 0, sB: 0 });
+
+                html += '<div class="pista-box">';
+                html += '<span class="pista-label">PISTA ' + (pi + 1) + '</span>';
+                html += '<div class="match-row">';
+                html += '<div class="pareja-box">';
+                html += '<span class="p-reves">' + jugadoresGlobal[pA[0]] + '</span>';
+                html += '<span class="p-drive">' + jugadoresGlobal[pA[1]] + '</span>';
+                html += '</div>';
+                html += '<input type="number" class="score-input" id="scA_' + id + '" onchange="registrar(\'' + id + '\')">';
+                html += '<input type="number" class="score-input" id="scB_' + id + '" onchange="registrar(\'' + id + '\')">';
+                html += '<div class="pareja-box">';
+                html += '<span class="p-reves">' + jugadoresGlobal[pB[0]] + '</span>';
+                html += '<span class="p-drive">' + jugadoresGlobal[pB[1]] + '</span>';
+                html += '</div>';
+                html += '</div></div>';
+            }
+
+            html += '</div>';
+        }
+
+        document.getElementById('cuadro').innerHTML = html;
+        document.getElementById('sectionPartidos').style.display = 'block';
+        document.getElementById('sectionRanking').style.display = 'block';
+
+        actualizarRanking();
+    } catch (err) {
+        console.error('Error:', err);
+        alert('Error: ' + err.message);
+    }
+}
+
+// ============================================================
+// REGISTRAR RESULTADO
+// ============================================================
+function registrar(id) {
+    var p = null;
+    for (var i = 0; i < partidosData.length; i++) {
+        if (partidosData[i].id === id) { p = partidosData[i]; break; }
+    }
+    if (!p) return;
+    p.sA = parseInt(document.getElementById('scA_' + id).value) || 0;
+    p.sB = parseInt(document.getElementById('scB_' + id).value) || 0;
+    actualizarRanking();
+}
+
+// ============================================================
+// RANKING
+// ============================================================
+function actualizarRanking() {
+    var globalStats = {};
+    for (var id in jugadoresGlobal) {
+        globalStats[id] = { nombre: jugadoresGlobal[id], vic: 0, dif: 0 };
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-        const hoy = new Date().toISOString().split('T')[0];
-        document.getElementById('inEvento').value = hoy;
-        document.getElementById('dispEv').innerText = formatearFecha(hoy);
-        actualizarVisibilidadJugadores();
+    for (var i = 0; i < partidosData.length; i++) {
+        var p = partidosData[i];
+        if (p.sA === 0 && p.sB === 0) continue;
+        var difA = p.sA - p.sB;
+        var difB = p.sB - p.sA;
+
+        for (var a = 0; a < p.jA.length; a++) {
+            var jugID = p.jA[a];
+            if (p.sA > p.sB) globalStats[jugID].vic++;
+            globalStats[jugID].dif += difA;
+        }
+        for (var b = 0; b < p.jB.length; b++) {
+            var jugID = p.jB[b];
+            if (p.sB > p.sA) globalStats[jugID].vic++;
+            globalStats[jugID].dif += difB;
+        }
+    }
+
+    var lista = [];
+    for (var id in globalStats) lista.push(globalStats[id]);
+    lista.sort(function(a, b) {
+        if (b.vic !== a.vic) return b.vic - a.vic;
+        return b.dif - a.dif;
     });
 
-    // ============================================================
-    // ALGORITMO: esqueleto determinista + Monte Carlo
-    // ============================================================
-    function generarEsquemaOptimo() {
-        try {
-            const pistas = parseInt(document.getElementById('inPistas').value);
-            const cfg = configPorPistas(pistas);
-            const { nRev, nDri, nJornadas } = cfg;
-
-            const reveses = [];
-            const drives = [];
-            for (let i = 0; i < nRev; i++) reveses.push(`r${i}`);
-            for (let i = 0; i < nDri; i++) drives.push(`d${i}`);
-
-            const todos = [...reveses, ...drives];
-            const parejasPorJornada = pistas * 2;
-
-            // ============================================================
-            // PASO 1: esqueleto determinista (round-robin modular)
-            // ============================================================
-            // Cada jornada tiene exactamente nRev parejas (una por revés).
-            // Necesitamos que nRev = parejasPorJornada.
-            // nRev = pistas * 2, y parejasPorJornada = pistas * 2. ✅
-            const esqueleto = [];
-            for (let j = 0; j < nJornadas; j++) {
-                const parejas = [];
-                for (let i = 0; i < nRev; i++) {
-                    parejas.push([reveses[i], drives[(i + j) % nDri]]);
-                }
-                esqueleto.push(parejas);
-            }
-
-            // Verificación
-            if (esqueleto.length !== nJornadas) {
-                console.error('Esqueleto mal formado.');
-                return null;
-            }
-            for (const j of esqueleto) {
-                if (j.length !== parejasPorJornada) {
-                    console.error('Jornada con nº incorrecto de parejas.');
-                    return null;
-                }
-            }
-
-            // ============================================================
-            // PASO 2: búsqueda Monte Carlo
-            // ============================================================
-            function generarAsignacion() {
-                const jornadas = [];
-                for (let j = 0; j < nJornadas; j++) {
-                    const parejas = [...esqueleto[j]];
-                    // Barajar parejas
-                    for (let i = parejas.length - 1; i > 0; i--) {
-                        const k = Math.floor(Math.random() * (i + 1));
-                        [parejas[i], parejas[k]] = [parejas[k], parejas[i]];
-                    }
-                    // Repartir en pistas (2 por pista) con orden aleatorio
-                    const asignacionJornada = [];
-                    for (let p = 0; p < pistas; p++) {
-                        const pA = parejas[p * 2];
-                        const pB = parejas[p * 2 + 1];
-                        if (!pA || !pB) {
-                            console.error('Faltan parejas al asignar pistas.');
-                            return null;
-                        }
-                        if (Math.random() < 0.5) {
-                            asignacionJornada.push([pA, pB]);
-                        } else {
-                            asignacionJornada.push([pB, pA]);
-                        }
-                    }
-                    jornadas.push(asignacionJornada);
-                }
-                return jornadas;
-            }
-
-            function calcularCoste(jornadas) {
-                let coste = 0;
-
-                // 1. Coincidencias en pista (prioridad máxima)
-                const coinc = {};
-                for (let i = 0; i < todos.length; i++)
-                    for (let k = i + 1; k < todos.length; k++)
-                        coinc[todos[i] + '|' + todos[k]] = 0;
-
-                jornadas.forEach(j => {
-                    j.forEach(([pA, pB]) => {
-                        const jugadoresPista = [pA[0], pA[1], pB[0], pB[1]];
-                        for (let a = 0; a < jugadoresPista.length; a++)
-                            for (let b = a + 1; b < jugadoresPista.length; b++) {
-                                const x = jugadoresPista[a], y = jugadoresPista[b];
-                                const key = x < y ? x + '|' + y : y + '|' + x;
-                                coinc[key]++;
-                            }
-                    });
-                });
-
-                Object.values(coinc).forEach(v => {
-                    if (v === 0) coste += 10;
-                    else if (v === 1) coste += 0;
-                    else if (v === 2) coste += 25;
-                    else coste += 100 + (v - 2) * 50;
-                });
-
-                // 2. Equilibrio de pistas por jugador
-                const pistasPorJug = {};
-                todos.forEach(j => pistasPorJug[j] = Array(pistas).fill(0));
-                jornadas.forEach(j => {
-                    j.forEach(([pA, pB], pi) => {
-                        pistasPorJug[pA[0]][pi]++;
-                        pistasPorJug[pA[1]][pi]++;
-                        pistasPorJug[pB[0]][pi]++;
-                        pistasPorJug[pB[1]][pi]++;
-                    });
-                });
-                Object.values(pistasPorJug).forEach(arr => {
-                    coste += (Math.max(...arr) - Math.min(...arr)) * 15;
-                });
-
-                return coste;
-            }
-
-            // ============================================================
-            // MONTE CARLO
-            // ============================================================
-            let mejor = null, mejorCoste = Infinity;
-            const INTENTOS = 5000;
-            for (let i = 0; i < INTENTOS; i++) {
-                const cand = generarAsignacion();
-                if (!cand) continue;
-                const c = calcularCoste(cand);
-                if (c < mejorCoste) {
-                    mejorCoste = c;
-                    mejor = cand;
-                    if (c === 0) break;
-                }
-            }
-
-            if (!mejor) {
-                console.error('Monte Carlo no encontró solución.');
-                return null;
-            }
-
-            // Convertir a lista plana por jornada
-            const jornadasFinales = mejor.map(j => {
-                const plana = [];
-                j.forEach(([pA, pB]) => {
-                    plana.push(pA);
-                    plana.push(pB);
-                });
-                return plana;
-            });
-
-            console.log('Mejor coste:', mejorCoste);
-
-            return {
-                jornadas: jornadasFinales,
-                coste: mejorCoste,
-                cfg,
-                reveses,
-                drives
-            };
-        } catch (err) {
-            console.error('Error en generarEsquemaOptimo:', err);
-            return null;
-        }
+    var html = '';
+    for (var i = 0; i < lista.length; i++) {
+        var j = lista[i];
+        html += '<div class="rank-item">';
+        html += '<div class="rank-info">';
+        html += '<span class="rank-pos">' + (i + 1) + '</span>';
+        html += '<span class="rank-name">' + j.nombre + '</span>';
+        html += '</div>';
+        html += '<div class="rank-stats">';
+        html += '<span style="color:var(--rmct-blue)">' + j.vic + 'V</span>';
+        html += '<span style="color:#666">| ' + (j.dif > 0 ? '+' + j.dif : j.dif) + '</span>';
+        html += '</div></div>';
     }
+    document.getElementById('ranking').innerHTML = html;
+}
 
-    // ============================================================
-    // UI DEL CUADRO
-    // ============================================================
-    function generarCuadro() {
-        try {
-            document.getElementById('dispTorneo').innerText = document.getElementById('inTorneo').value;
-            document.getElementById('dispEv').innerText = formatearFecha(document.getElementById('inEvento').value);
-            document.getElementById('dispCat').innerText = "CAT: " + document.getElementById('inCat').value;
-            document.getElementById('dispHora').innerText = "H: " + document.getElementById('inHora').value;
-
-            const pistas = parseInt(document.getElementById('inPistas').value);
-            const cfg = configPorPistas(pistas);
-
-            jugadoresGlobal = {};
-            for (let i = 0; i < cfg.nRev; i++)
-                jugadoresGlobal[`r${i}`] = document.getElementById(`r${i}`).value.toUpperCase() || `R${i}`;
-            for (let i = 0; i < cfg.nDri; i++)
-                jugadoresGlobal[`d${i}`] = document.getElementById(`d${i}`).value.toUpperCase() || `D${i}`;
-
-            const resultado = generarEsquemaOptimo();
-            if (!resultado || !resultado.jornadas) {
-                alert('No se pudo generar un cuadro válido. Prueba de nuevo.');
-                return;
-            }
-
-            partidosData = [];
-            let html = "";
-
-            resultado.jornadas.forEach((parejas, idx) => {
-                html += `<div class="ronda-card">
-                    <div class="ronda-header">JORNADA ${idx + 1}</div>`;
-
-                for (let pi = 0; pi < pistas; pi++) {
-                    const pA = parejas[pi * 2];
-                    const pB = parejas[pi * 2 + 1];
-                    if (!pA || !pB) continue;
-                    const id = `j${idx}p${pi}`;
-                    partidosData.push({ id, jA: pA, jB: pB, sA: 0, sB: 0 });
-
-                    html += `
-                        <div class="pista-box">
-                            <span class="pista-label">PISTA ${pi + 1}</span>
-                            <div class="match-row">
-                                <div class="pareja-box">
-                                    <span class="p-reves">${jugadoresGlobal[pA[0]]}</span>
-                                    <span class="p-drive">${jugadoresGlobal[pA[1]]}</span>
-                                </div>
-                                <input type="number" class="score-input" id="scA_${id}" onchange="registrar('${id}')">
-                                <input type="number" class="score-input" id="scB_${id}" onchange="registrar('${id}')">
-                                <div class="pareja-box">
-                                    <span class="p-reves">${jugadoresGlobal[pB[0]]}</span>
-                                    <span class="p-drive">${jugadoresGlobal[pB[1]]}</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                html += `</div>`;
-            });
-
-            document.getElementById('cuadro').innerHTML = html;
-            document.getElementById('sectionPartidos').style.display = 'block';
-            document.getElementById('sectionRanking').style.display = 'block';
-
-            actualizarRanking();
-        } catch (err) {
-            console.error('Error en generarCuadro:', err);
-            alert('Error inesperado. Mira la consola (F12).');
-        }
-    }
-
-    function registrar(id) {
-        const p = partidosData.find(x => x.id === id);
-        if (!p) return;
-        p.sA = parseInt(document.getElementById(`scA_${id}`).value) || 0;
-        p.sB = parseInt(document.getElementById(`scB_${id}`).value) || 0;
-        actualizarRanking();
-    }
-
-    function actualizarRanking() {
-        const globalStats = {};
-        for (const [id, nombre] of Object.entries(jugadoresGlobal)) {
-            globalStats[id] = { nombre, vic: 0, dif: 0, jugados: 0 };
-        }
-
-        partidosData.forEach(p => {
-            if (p.sA === 0 && p.sB === 0) return;
-            const difA = p.sA - p.sB;
-            const difB = p.sB - p.sA;
-            p.jA.forEach(jugID => {
-                if (p.sA > p.sB) globalStats[jugID].vic++;
-                globalStats[jugID].dif += difA;
-                globalStats[jugID].jugados++;
-            });
-            p.jB.forEach(jugID => {
-                if (p.sB > p.sA) globalStats[jugID].vic++;
-                globalStats[jugID].dif += difB;
-                globalStats[jugID].jugados++;
-            });
-        });
-
-        const lista = Object.values(globalStats).sort((a, b) => {
-            if (b.vic !== a.vic) return b.vic - a.vic;
-            return b.dif - a.dif;
-        });
-
-        let html = "";
-        lista.forEach((j, i) => {
-            html += `
-                <div class="rank-item">
-                    <div class="rank-info">
-                        <span class="rank-pos">${i + 1}</span>
-                        <span class="rank-name">${j.nombre}</span>
-                    </div>
-                    <div class="rank-stats">
-                        <span style="color:var(--rmct-blue)">${j.vic}V</span>
-                        <span style="color:#666">| ${j.dif > 0 ? '+' + j.dif : j.dif}</span>
-                    </div>
-                </div>
-            `;
-        });
-        document.getElementById('ranking').innerHTML = html;
-    }
+// ============================================================
+// INICIALIZACIÓN
+// ============================================================
+window.addEventListener('DOMContentLoaded', function() {
+    var hoy = new Date();
+    var y = hoy.getFullYear();
+    var m = String(hoy.getMonth() + 1).padStart(2, '0');
+    var d = String(hoy.getDate()).padStart(2, '0');
+    document.getElementById('inEvento').value = y + '-' + m + '-' + d;
+    document.getElementById('dispEv').innerText = formatearFecha(y + '-' + m + '-' + d);
+    actualizarVisibilidadJugadores();
+});
 </script>
 
 </body>
 </html>
-```
-
-🔧 Qué he corregido
-
-1. generarEsquemaOptimo ahora devuelve null si algo va mal, en lugar de romper.
-2. generarCuadro verifica que resultado no sea null antes de usar resultado.jornadas.
-3. Verificación del esqueleto: comprueba que cada jornada tiene el número correcto de parejas.
-4. try/catch alrededor de las funciones críticas: si algo falla, verás el error en consola en lugar de "no funciona".
-5. Reduje los intentos de Monte Carlo a 5.000 (suficiente y más rápido).
-
-🧪 Prueba
-
-1. Guarda el HTML y ábrelo.
-2. Abre la consola (F12).
-3. Pulsa GENERAR CUADRO.
-4. Deberías ver:
-   ```
-   Mejor coste: 245
-   ```
-   o similar. Si algo falla, verás un mensaje de error explicando qué pasó.
-
-Si sigue sin funcionar, dime qué mensaje exacto aparece en la consola al pulsar el botón (copia el texto rojo de error). Con eso puedo identificar exactamente dónde está el fallo.

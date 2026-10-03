@@ -291,8 +291,6 @@
         const pistas = parseInt(select.value);
         const cfg = configPorPistas(pistas);
 
-        console.log('Cambio de formato a:', pistas, 'pistas →', cfg.nJug, 'jugadores');
-
         for (let i = 0; i < 8; i++) {
             const r = document.getElementById(`r${i}`);
             const d = document.getElementById(`d${i}`);
@@ -322,12 +320,7 @@
     });
 
     // ============================================================
-    // ALGORITMO DETERMINISTA (round-robin modular)
-    // ============================================================
-    // Garantiza SIEMPRE un cuadro válido:
-    //   - Cada revés juega con cada drive exactamente 1 vez (si nJornadas = nDri)
-    //   - Cada revés/drive aparece 1 vez por jornada
-    //   - Todas las parejas de una jornada son únicas
+    // ALGORITMO: esqueleto determinista + Monte Carlo para pistas
     // ============================================================
     function generarEsquemaOptimo() {
         const pistas = parseInt(document.getElementById('inPistas').value);
@@ -339,50 +332,123 @@
         for (let i = 0; i < nRev; i++) reveses.push(`r${i}`);
         for (let i = 0; i < nDri; i++) drives.push(`d${i}`);
 
-        const parejasPorJornada = pistas * 2;
+        const todos = [...reveses, ...drives];
 
         // ============================================================
-        // PASO 1: Round-robin modular
-        // Jornada j → revés i se empareja con drive (i + j) % nDri
+        // PASO 1: esqueleto determinista (round-robin modular)
+        // Jornada j → revés i con drive (i + j) % nDri
         // ============================================================
-        const jornadas = [];
+        const esqueleto = [];
         for (let j = 0; j < nJornadas; j++) {
-            const parejasJornada = [];
+            const parejas = [];
             for (let i = 0; i < nRev; i++) {
-                const r = reveses[i];
-                const d = drives[(i + j) % nDri];
-                parejasJornada.push([r, d]);
+                parejas.push([reveses[i], drives[(i + j) % nDri]]);
             }
-            jornadas.push(parejasJornada);
+            esqueleto.push(parejas);
         }
 
         // ============================================================
-        // PASO 2: Equilibrar pistas rotando las parejas dentro de
-        // cada jornada, de forma que cada jugador pase por todas las
-        // pistas a lo largo del torneo.
+        // PASO 2: búsqueda Monte Carlo
         // ============================================================
-        const jornadasFinales = [];
-        for (let j = 0; j < nJornadas; j++) {
-            const parejas = [...jornadas[j]];
-            // Ordenar por índice del revés para tener base estable
-            parejas.sort((a, b) => {
-                const ia = parseInt(a[0].substring(1));
-                const ib = parseInt(b[0].substring(1));
-                return ia - ib;
+        function generarAsignacion() {
+            const jornadas = [];
+            for (let j = 0; j < nJornadas; j++) {
+                const parejas = [...esqueleto[j]];
+                for (let i = parejas.length - 1; i > 0; i--) {
+                    const k = Math.floor(Math.random() * (i + 1));
+                    [parejas[i], parejas[k]] = [parejas[k], parejas[i]];
+                }
+                const asignacionJornada = [];
+                for (let p = 0; p < pistas; p++) {
+                    const pA = parejas[p * 2];
+                    const pB = parejas[p * 2 + 1];
+                    if (Math.random() < 0.5) {
+                        asignacionJornada.push([pA, pB]);
+                    } else {
+                        asignacionJornada.push([pB, pA]);
+                    }
+                }
+                jornadas.push(asignacionJornada);
+            }
+            return jornadas;
+        }
+
+        function calcularCoste(jornadas) {
+            let coste = 0;
+
+            // --- Coincidencias en pista (PRIORIDAD MÁXIMA) ---
+            const coinc = {};
+            for (let i = 0; i < todos.length; i++)
+                for (let k = i + 1; k < todos.length; k++)
+                    coinc[todos[i] + '|' + todos[k]] = 0;
+
+            jornadas.forEach(j => {
+                j.forEach(([pA, pB]) => {
+                    const jugadoresPista = [pA[0], pA[1], pB[0], pB[1]];
+                    for (let a = 0; a < jugadoresPista.length; a++)
+                        for (let b = a + 1; b < jugadoresPista.length; b++) {
+                            const x = jugadoresPista[a], y = jugadoresPista[b];
+                            const key = x < y ? x + '|' + y : y + '|' + x;
+                            coinc[key]++;
+                        }
+                });
             });
-            // Rotar según jornada para equilibrar pistas
-            const rotadas = [];
-            for (let k = 0; k < parejas.length; k++) {
-                rotadas.push(parejas[(k + j) % parejas.length]);
-            }
-            jornadasFinales.push(rotadas);
+
+            // Penalización fuerte a repeticiones
+            Object.values(coinc).forEach(v => {
+                if (v === 0) coste += 10;
+                else if (v === 1) coste += 0;
+                else if (v === 2) coste += 25;
+                else coste += 100 + (v - 2) * 50;
+            });
+
+            // --- Equilibrio de pistas por jugador ---
+            const pistasPorJug = {};
+            todos.forEach(j => pistasPorJug[j] = Array(pistas).fill(0));
+            jornadas.forEach(j => {
+                j.forEach(([pA, pB], pi) => {
+                    pistasPorJug[pA[0]][pi]++;
+                    pistasPorJug[pA[1]][pi]++;
+                    pistasPorJug[pB[0]][pi]++;
+                    pistasPorJug[pB[1]][pi]++;
+                });
+            });
+            Object.values(pistasPorJug).forEach(arr => {
+                coste += (Math.max(...arr) - Math.min(...arr)) * 15;
+            });
+
+            return coste;
         }
 
-        console.log('Esquema determinista generado:', pistas, 'pistas,', cfg.nJug, 'jugadores,', nJornadas, 'jornadas.');
+        // ============================================================
+        // MONTE CARLO
+        // ============================================================
+        let mejor = null, mejorCoste = Infinity;
+        const INTENTOS = 20000;
+        for (let i = 0; i < INTENTOS; i++) {
+            const cand = generarAsignacion();
+            const c = calcularCoste(cand);
+            if (c < mejorCoste) {
+                mejorCoste = c;
+                mejor = cand;
+            }
+        }
+
+        // Convertir a lista plana por jornada
+        const jornadasFinales = mejor.map(j => {
+            const plana = [];
+            j.forEach(([pA, pB]) => {
+                plana.push(pA);
+                plana.push(pB);
+            });
+            return plana;
+        });
+
+        console.log('Mejor coste:', mejorCoste);
 
         return {
             jornadas: jornadasFinales,
-            coste: 0,
+            coste: mejorCoste,
             cfg,
             reveses,
             drives

@@ -358,299 +358,310 @@ function compartirCuadro() {
         // ============================================================
         // CONFIGURACIÓN COMPACTA
         // ============================================================
-        var ancho = 1080;
-        var padding = 22;
+        var ancho = 950;
+        var padding = 20;
 
-        var altoCabecera = 150;
-        var altoListaJugadores = 110;
-        var altoJornada = 48;
-        var altoPista = 100;
-        var separacionJornada = 12;
-        var espacioEntreBloques = 12;
+        var altoCabecera = 140;
+        var altoListaJugadores = 90;
+        var altoJornada = 42;
+        var altoPista = 85;
+        var separacionJornada = 10;
+        var espacioEntreBloques = 10;
 
-        var fuenteTitulo = 'bold 38px Arial, sans-serif';
-        var fuenteBadge = 'bold 16px Arial, sans-serif';
-        var fuenteListaTitulo = 'bold 18px Arial, sans-serif';
-        var fuenteListaJugador = 'bold 20px Arial, sans-serif';
-        var fuenteJornada = 'bold 24px Arial, sans-serif';
-        var fuentePistaLabel = 'bold 13px Arial, sans-serif';
-        var fuenteJugador = 'bold 30px Arial, sans-serif';
-        var fuenteVS = 'bold 20px Arial, sans-serif';
+        var fuenteTitulo = 'bold 34px Arial, sans-serif';
+        var fuenteBadge = 'bold 15px Arial, sans-serif';
+        var fuenteListaTitulo = 'bold 17px Arial, sans-serif';
+        var fuenteListaJugador = 'bold 18px Arial, sans-serif';
+        var fuenteJornada = 'bold 22px Arial, sans-serif';
+        var fuentePistaLabel = 'bold 12px Arial, sans-serif';
+        var fuenteJugador = 'bold 28px Arial, sans-serif';
+        var fuenteVS = 'bold 18px Arial, sans-serif';
 
         // ============================================================
-        // CABECERA
+        // CARGAR LOGO
         // ============================================================
-        function dibujarCabecera(ctx, offsetY) {
-            var y = offsetY;
+        var logoImg = new Image();
+        logoImg.crossOrigin = 'anonymous';
+        logoImg.src = 'https://www.murciaclubdetenis.es/wp-content/uploads/2019/10/logo-menu-1x2.png';
 
-            ctx.fillStyle = '#ffffff';
-            roundRect(ctx, padding, y, ancho - padding*2, altoCabecera, 16);
-            ctx.fill();
+        logoImg.onload = function() {
+            generarImagen(logoImg);
+        };
+        logoImg.onerror = function() {
+            console.warn('No se pudo cargar el logo. Generando imagen sin logo.');
+            generarImagen(null);
+        };
 
-            ctx.fillStyle = '#d9b46b';
-            ctx.fillRect(padding, y + altoCabecera - 5, ancho - padding*2, 5);
+        // ============================================================
+        // GENERAR IMAGEN
+        // ============================================================
+        function generarImagen(logoImg) {
 
-            ctx.fillStyle = '#001b3d';
-            ctx.font = fuenteTitulo;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(torneo.toUpperCase(), ancho/2, y + 45);
+            function dibujarCabecera(ctx, offsetY) {
+                var y = offsetY;
 
-            var badges = [fecha];
-            if (cat) badges.push('CAT: ' + cat);
-            if (hora) badges.push('H: ' + hora);
-
-            var badgeY = y + 78;
-            var badgeHeight = 38;
-            var badgePadding = 18;
-            var espacio = 10;
-
-            ctx.font = fuenteBadge;
-            var anchos = [];
-            var anchoTotalBadges = 0;
-            for (var i = 0; i < badges.length; i++) {
-                var w = ctx.measureText(badges[i]).width + badgePadding * 2;
-                anchos.push(w);
-                anchoTotalBadges += w;
-            }
-            anchoTotalBadges += espacio * (badges.length - 1);
-
-            var xBadge = (ancho - anchoTotalBadges) / 2;
-            for (var i = 0; i < badges.length; i++) {
-                var w = anchos[i];
-                ctx.fillStyle = '#0057b8';
-                roundRect(ctx, xBadge, badgeY, w, badgeHeight, 19);
-                ctx.fill();
                 ctx.fillStyle = '#ffffff';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(badges[i], xBadge + w/2, badgeY + badgeHeight/2 + 1);
-                xBadge += w + espacio;
-            }
-
-            return y + altoCabecera + espacioEntreBloques;
-        }
-
-        // ============================================================
-        // LISTA DE JUGADORES (fila horizontal compacta)
-        // ============================================================
-        function dibujarListaJugadores(ctx, offsetY) {
-            var y = offsetY;
-
-            ctx.fillStyle = '#ffffff';
-            roundRect(ctx, padding, y, ancho - padding*2, altoListaJugadores, 16);
-            ctx.fill();
-
-            ctx.font = fuenteListaTitulo;
-            ctx.textBaseline = 'middle';
-
-            // Fila REVÉS
-            ctx.fillStyle = '#0056b3';
-            ctx.textAlign = 'left';
-            ctx.fillText('REVÉS:', padding + 20, y + 32);
-
-            // Fila DRIVE
-            ctx.fillStyle = '#b35f00';
-            ctx.textAlign = 'left';
-            ctx.fillText('DRIVE:', padding + 20, y + 78);
-
-            var listaReveses = [];
-            var listaDrives = [];
-            for (var i = 0; i < cfg.nRev; i++) {
-                if (jugadoresGlobal['r' + i]) listaReveses.push(jugadoresGlobal['r' + i]);
-            }
-            for (var i = 0; i < cfg.nDri; i++) {
-                if (jugadoresGlobal['d' + i]) listaDrives.push(jugadoresGlobal['d' + i]);
-            }
-
-            var textoReveses = listaReveses.join('  ·  ');
-            var textoDrives = listaDrives.join('  ·  ');
-
-            ctx.font = fuenteListaJugador;
-            ctx.fillStyle = '#003a7a';
-            ctx.textAlign = 'left';
-            ctx.fillText(textoReveses, padding + 120, y + 32);
-
-            ctx.fillStyle = '#7a3d00';
-            ctx.textAlign = 'left';
-            ctx.fillText(textoDrives, padding + 120, y + 78);
-
-            return y + altoListaJugadores + espacioEntreBloques;
-        }
-
-        // ============================================================
-        // JORNADAS
-        // ============================================================
-        function dibujarJornadas(ctx, listaJornadas, offsetY) {
-            var y = offsetY;
-
-            for (var idx = 0; idx < listaJornadas.length; idx++) {
-                var jornadaInfo = listaJornadas[idx];
-                var ronda = jornadaInfo.elemento;
-                var numeroJornada = jornadaInfo.numero;
-
-                ctx.fillStyle = '#001b3d';
-                roundRect(ctx, padding, y, ancho - padding*2, altoJornada, 12);
+                roundRect(ctx, padding, y, ancho - padding*2, altoCabecera, 14);
                 ctx.fill();
-                ctx.fillStyle = '#ffffff';
-                ctx.font = fuenteJornada;
-                ctx.textAlign = 'left';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('JORNADA ' + numeroJornada, padding + 25, y + altoJornada/2 + 1);
-                y += altoJornada + 6;
 
-                var pistasHTML = ronda.querySelectorAll('.pista-box');
-                for (var pi = 0; pi < pistasHTML.length; pi++) {
-                    var pista = pistasHTML[pi];
+                ctx.fillStyle = '#d9b46b';
+                ctx.fillRect(padding, y + altoCabecera - 4, ancho - padding*2, 4);
 
-                    ctx.fillStyle = '#ffffff';
-                    roundRect(ctx, padding, y, ancho - padding*2, altoPista - 8, 12);
-                    ctx.fill();
+                var logoSize = 70;
+                var logoX = padding + 15;
+                var logoY = y + (altoCabecera - logoSize) / 2;
 
-                    ctx.fillStyle = '#999999';
-                    ctx.font = fuentePistaLabel;
-                    ctx.textAlign = 'left';
-                    ctx.textBaseline = 'top';
-                    var pistaLabel = pista.querySelector('.pista-label');
-                    if (pistaLabel) {
-                        ctx.fillText(pistaLabel.innerText, padding + 15, y + 10);
-                    }
-
-                    var parejas = pista.querySelectorAll('.pareja-box');
-                    var centroX = ancho / 2;
-                    var filaY = y + 55;
-
-                    if (parejas.length >= 2) {
-                        var pA = parejas[0].querySelectorAll('span');
-                        var pB = parejas[1].querySelectorAll('span');
-
-                        // Pareja A (izquierda)
-                        var xDerechaA = centroX - 40;
-                        ctx.textAlign = 'right';
-                        ctx.textBaseline = 'middle';
-
-                        ctx.fillStyle = '#0056b3';
-                        ctx.font = fuenteJugador;
-                        ctx.fillText(pA[0] ? pA[0].innerText : '', xDerechaA, filaY - 16);
-
-                        ctx.fillStyle = '#b35f00';
-                        ctx.font = fuenteJugador;
-                        ctx.fillText(pA[1] ? pA[1].innerText : '', xDerechaA, filaY + 16);
-
-                        // VS
-                        ctx.fillStyle = '#cccccc';
-                        ctx.font = fuenteVS;
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
-                        ctx.fillText('VS', centroX, filaY);
-
-                        // Pareja B (derecha)
-                        var xIzquierdaB = centroX + 40;
-                        ctx.textAlign = 'left';
-
-                        ctx.fillStyle = '#0056b3';
-                        ctx.font = fuenteJugador;
-                        ctx.fillText(pB[0] ? pB[0].innerText : '', xIzquierdaB, filaY - 16);
-
-                        ctx.fillStyle = '#b35f00';
-                        ctx.font = fuenteJugador;
-                        ctx.fillText(pB[1] ? pB[1].innerText : '', xIzquierdaB, filaY + 16);
-                    }
-
-                    y += altoPista;
+                if (logoImg) {
+                    ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
                 }
 
-                y += separacionJornada;
+                var textoX = logoX + logoSize + 15;
+
+                ctx.fillStyle = '#001b3d';
+                ctx.font = fuenteTitulo;
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(torneo.toUpperCase(), textoX, y + 38);
+
+                var badges = [fecha];
+                if (cat) badges.push('CAT: ' + cat);
+                if (hora) badges.push('H: ' + hora);
+
+                var badgeY = y + 75;
+                var badgeHeight = 32;
+                var badgePadding = 14;
+                var espacio = 8;
+
+                ctx.font = fuenteBadge;
+                var anchos = [];
+                for (var i = 0; i < badges.length; i++) {
+                    var w = ctx.measureText(badges[i]).width + badgePadding * 2;
+                    anchos.push(w);
+                }
+
+                var xBadge = textoX;
+                for (var i = 0; i < badges.length; i++) {
+                    var w = anchos[i];
+                    ctx.fillStyle = '#0057b8';
+                    roundRect(ctx, xBadge, badgeY, w, badgeHeight, 16);
+                    ctx.fill();
+                    ctx.fillStyle = '#ffffff';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(badges[i], xBadge + w/2, badgeY + badgeHeight/2 + 1);
+                    xBadge += w + espacio;
+                }
+
+                return y + altoCabecera + espacioEntreBloques;
             }
 
-            return y;
-        }
+            function dibujarListaJugadores(ctx, offsetY) {
+                var y = offsetY;
 
-        // ============================================================
-        // CÁLCULO DE ALTURA EXACTA
-        // ============================================================
-        var alturaCabeceraLista = altoCabecera + espacioEntreBloques + altoListaJugadores + espacioEntreBloques;
-        var alturaUnaJornada = altoJornada + 6 + (cfg.pistas * altoPista) + separacionJornada;
-        var alturaTotal = padding + alturaCabeceraLista + (jornadas.length * alturaUnaJornada) + padding;
+                ctx.fillStyle = '#ffffff';
+                roundRect(ctx, padding, y, ancho - padding*2, altoListaJugadores, 14);
+                ctx.fill();
 
-        var ALTURA_MAXIMA = 5000;
+                ctx.font = fuenteListaTitulo;
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#0056b3';
+                ctx.textAlign = 'left';
+                ctx.fillText('REVÉS:', padding + 15, y + 28);
 
-        if (alturaTotal <= ALTURA_MAXIMA) {
-            // ---- UNA IMAGEN ----
-            var canvas = document.createElement('canvas');
-            canvas.width = ancho;
-            canvas.height = alturaTotal;
-            var ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#b35f00';
+                ctx.textAlign = 'left';
+                ctx.fillText('DRIVE:', padding + 15, y + 64);
 
-            ctx.fillStyle = '#f4f7fb';
-            ctx.fillRect(0, 0, ancho, alturaTotal);
+                var listaReveses = [];
+                var listaDrives = [];
+                for (var i = 0; i < cfg.nRev; i++) {
+                    if (jugadoresGlobal['r' + i]) listaReveses.push(jugadoresGlobal['r' + i]);
+                }
+                for (var i = 0; i < cfg.nDri; i++) {
+                    if (jugadoresGlobal['d' + i]) listaDrives.push(jugadoresGlobal['d' + i]);
+                }
 
-            var y = padding;
-            y = dibujarCabecera(ctx, y);
-            y = dibujarListaJugadores(ctx, y);
+                var textoReveses = listaReveses.join('  ·  ');
+                var textoDrives = listaDrives.join('  ·  ');
 
-            var listaJornadas = [];
-            for (var i = 0; i < jornadas.length; i++) {
-                listaJornadas.push({ elemento: jornadas[i], numero: i + 1 });
+                ctx.font = fuenteListaJugador;
+                ctx.fillStyle = '#003a7a';
+                ctx.textAlign = 'left';
+                ctx.fillText(textoReveses, padding + 100, y + 28);
+
+                ctx.fillStyle = '#7a3d00';
+                ctx.textAlign = 'left';
+                ctx.fillText(textoDrives, padding + 100, y + 64);
+
+                return y + altoListaJugadores + espacioEntreBloques;
             }
-            y = dibujarJornadas(ctx, listaJornadas, y);
 
-            exportarCanvas(canvas, torneo, 'cuadro-americano.png');
-        } else {
-            // ---- DOS IMÁGENES ----
-            var mitad = Math.ceil(jornadas.length / 2);
+            function dibujarJornadas(ctx, listaJornadas, offsetY) {
+                var y = offsetY;
 
-            // Parte 1
-            var jornadas1 = [];
-            for (var i = 0; i < mitad; i++) {
-                jornadas1.push({ elemento: jornadas[i], numero: i + 1 });
+                for (var idx = 0; idx < listaJornadas.length; idx++) {
+                    var jornadaInfo = listaJornadas[idx];
+                    var ronda = jornadaInfo.elemento;
+                    var numeroJornada = jornadaInfo.numero;
+
+                    ctx.fillStyle = '#001b3d';
+                    roundRect(ctx, padding, y, ancho - padding*2, altoJornada, 10);
+                    ctx.fill();
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = fuenteJornada;
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('JORNADA ' + numeroJornada, padding + 20, y + altoJornada/2 + 1);
+                    y += altoJornada + 5;
+
+                    var pistasHTML = ronda.querySelectorAll('.pista-box');
+                    for (var pi = 0; pi < pistasHTML.length; pi++) {
+                        var pista = pistasHTML[pi];
+
+                        ctx.fillStyle = '#ffffff';
+                        roundRect(ctx, padding, y, ancho - padding*2, altoPista - 6, 10);
+                        ctx.fill();
+
+                        ctx.fillStyle = '#999999';
+                        ctx.font = fuentePistaLabel;
+                        ctx.textAlign = 'left';
+                        ctx.textBaseline = 'top';
+                        var pistaLabel = pista.querySelector('.pista-label');
+                        if (pistaLabel) {
+                            ctx.fillText(pistaLabel.innerText, padding + 12, y + 8);
+                        }
+
+                        var parejas = pista.querySelectorAll('.pareja-box');
+                        var centroX = ancho / 2;
+                        var filaY = y + 47;
+
+                        if (parejas.length >= 2) {
+                            var pA = parejas[0].querySelectorAll('span');
+                            var pB = parejas[1].querySelectorAll('span');
+
+                            var xDerechaA = centroX - 35;
+                            ctx.textAlign = 'right';
+                            ctx.textBaseline = 'middle';
+
+                            ctx.fillStyle = '#0056b3';
+                            ctx.font = fuenteJugador;
+                            ctx.fillText(pA[0] ? pA[0].innerText : '', xDerechaA, filaY - 14);
+
+                            ctx.fillStyle = '#b35f00';
+                            ctx.font = fuenteJugador;
+                            ctx.fillText(pA[1] ? pA[1].innerText : '', xDerechaA, filaY + 14);
+
+                            ctx.fillStyle = '#cccccc';
+                            ctx.font = fuenteVS;
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText('VS', centroX, filaY);
+
+                            var xIzquierdaB = centroX + 35;
+                            ctx.textAlign = 'left';
+
+                            ctx.fillStyle = '#0056b3';
+                            ctx.font = fuenteJugador;
+                            ctx.fillText(pB[0] ? pB[0].innerText : '', xIzquierdaB, filaY - 14);
+
+                            ctx.fillStyle = '#b35f00';
+                            ctx.font = fuenteJugador;
+                            ctx.fillText(pB[1] ? pB[1].innerText : '', xIzquierdaB, filaY + 14);
+                        }
+
+                        y += altoPista;
+                    }
+
+                    y += separacionJornada;
+                }
+
+                return y;
             }
-            var altura1 = padding + alturaCabeceraLista + (jornadas1.length * alturaUnaJornada) + padding;
 
-            var canvas1 = document.createElement('canvas');
-            canvas1.width = ancho;
-            canvas1.height = altura1;
-            var ctx1 = canvas1.getContext('2d');
-            ctx1.fillStyle = '#f4f7fb';
-            ctx1.fillRect(0, 0, ancho, altura1);
+            // ============================================================
+            // CÁLCULO DE ALTURA
+            // ============================================================
+            var alturaCabeceraLista = altoCabecera + espacioEntreBloques + altoListaJugadores + espacioEntreBloques;
+            var alturaUnaJornada = altoJornada + 5 + (cfg.pistas * altoPista) + separacionJornada;
+            var alturaTotal = padding + alturaCabeceraLista + (jornadas.length * alturaUnaJornada) + padding;
 
-            var y1 = padding;
-            y1 = dibujarCabecera(ctx1, y1);
-            y1 = dibujarListaJugadores(ctx1, y1);
-            y1 = dibujarJornadas(ctx1, jornadas1, y1);
+            var ALTURA_MAXIMA = 5000;
 
-            exportarCanvas(canvas1, torneo, 'cuadro-americano-parte1.png');
+            if (alturaTotal <= ALTURA_MAXIMA) {
+                // ---- UNA IMAGEN ----
+                var canvas = document.createElement('canvas');
+                canvas.width = ancho;
+                canvas.height = alturaTotal;
+                var ctx = canvas.getContext('2d');
 
-            // Parte 2
-            var jornadas2 = [];
-            for (var i = mitad; i < jornadas.length; i++) {
-                jornadas2.push({ elemento: jornadas[i], numero: i + 1 });
+                ctx.fillStyle = '#f4f7fb';
+                ctx.fillRect(0, 0, ancho, alturaTotal);
+
+                var y = padding;
+                y = dibujarCabecera(ctx, y);
+                y = dibujarListaJugadores(ctx, y);
+
+                var listaJornadas = [];
+                for (var i = 0; i < jornadas.length; i++) {
+                    listaJornadas.push({ elemento: jornadas[i], numero: i + 1 });
+                }
+                y = dibujarJornadas(ctx, listaJornadas, y);
+
+                exportarCanvas(canvas, torneo, 'cuadro-americano.png');
+            } else {
+                // ---- DOS IMÁGENES ----
+                var mitad = Math.ceil(jornadas.length / 2);
+
+                var jornadas1 = [];
+                for (var i = 0; i < mitad; i++) {
+                    jornadas1.push({ elemento: jornadas[i], numero: i + 1 });
+                }
+                var altura1 = padding + alturaCabeceraLista + (jornadas1.length * alturaUnaJornada) + padding;
+
+                var canvas1 = document.createElement('canvas');
+                canvas1.width = ancho;
+                canvas1.height = altura1;
+                var ctx1 = canvas1.getContext('2d');
+                ctx1.fillStyle = '#f4f7fb';
+                ctx1.fillRect(0, 0, ancho, altura1);
+
+                var y1 = padding;
+                y1 = dibujarCabecera(ctx1, y1);
+                y1 = dibujarListaJugadores(ctx1, y1);
+                y1 = dibujarJornadas(ctx1, jornadas1, y1);
+
+                exportarCanvas(canvas1, torneo, 'cuadro-americano-parte1.png');
+
+                var jornadas2 = [];
+                for (var i = mitad; i < jornadas.length; i++) {
+                    jornadas2.push({ elemento: jornadas[i], numero: i + 1 });
+                }
+                var altura2 = padding + 50 + (jornadas2.length * alturaUnaJornada) + padding;
+
+                var canvas2 = document.createElement('canvas');
+                canvas2.width = ancho;
+                canvas2.height = altura2;
+                var ctx2 = canvas2.getContext('2d');
+                ctx2.fillStyle = '#f4f7fb';
+                ctx2.fillRect(0, 0, ancho, altura2);
+
+                var y2 = padding;
+                ctx2.fillStyle = '#001b3d';
+                roundRect(ctx2, padding, y2, ancho - padding*2, 44, 10);
+                ctx2.fill();
+                ctx2.fillStyle = '#ffffff';
+                ctx2.font = fuenteJornada;
+                ctx2.textAlign = 'center';
+                ctx2.textBaseline = 'middle';
+                ctx2.fillText(torneo.toUpperCase() + ' · CONTINUACIÓN', ancho/2, y2 + 22);
+                y2 += 44 + espacioEntreBloques;
+
+                y2 = dibujarJornadas(ctx2, jornadas2, y2);
+
+                setTimeout(function() {
+                    exportarCanvas(canvas2, torneo, 'cuadro-americano-parte2.png');
+                }, 900);
             }
-            var altura2 = padding + 60 + (jornadas2.length * alturaUnaJornada) + padding;
-
-            var canvas2 = document.createElement('canvas');
-            canvas2.width = ancho;
-            canvas2.height = altura2;
-            var ctx2 = canvas2.getContext('2d');
-            ctx2.fillStyle = '#f4f7fb';
-            ctx2.fillRect(0, 0, ancho, altura2);
-
-            var y2 = padding;
-            ctx2.fillStyle = '#001b3d';
-            roundRect(ctx2, padding, y2, ancho - padding*2, 50, 12);
-            ctx2.fill();
-            ctx2.fillStyle = '#ffffff';
-            ctx2.font = fuenteJornada;
-            ctx2.textAlign = 'center';
-            ctx2.textBaseline = 'middle';
-            ctx2.fillText(torneo.toUpperCase() + ' · CONTINUACIÓN', ancho/2, y2 + 25);
-            y2 += 50 + espacioEntreBloques;
-
-            y2 = dibujarJornadas(ctx2, jornadas2, y2);
-
-            setTimeout(function() {
-                exportarCanvas(canvas2, torneo, 'cuadro-americano-parte2.png');
-            }, 900);
         }
 
     } catch (err) {

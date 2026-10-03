@@ -128,13 +128,6 @@ var partidosData = [];
 var jugadoresGlobal = {};
 var N_JORNADAS = 4;
 
-// ============================================================
-// LOGO EN BASE64 (para evitar CORS)
-// ============================================================
-// Aquí va el logo en base64. Como no lo tengo, dejo una cadena vacía
-// y el código detecta si está o no. Si no está, no dibuja logo.
-var LOGO_BASE64 = "";
-
 function configPorPistas(pistas) {
     var nJug = pistas * 4;
     return { pistas: pistas, nJug: nJug, nRev: nJug/2, nDri: nJug/2, nJornadas: N_JORNADAS };
@@ -342,14 +335,7 @@ function generarCuadro() {
 }
 
 // ============================================================
-// COMPARTIR COMO IMAGEN (VERSIÓN CORREGIDA)
-// ============================================================
-// Estrategia:
-// 1. Primero dibujamos todo en un canvas de "medición" para saber
-//    exactamente cuánto ocupa cada bloque.
-// 2. Luego creamos el canvas definitivo con la altura exacta.
-// 3. Textos GRANDES (44px para nombres, 52px para títulos).
-// 4. Sin espacios vacíos: cada bloque va pegado al siguiente.
+// COMPARTIR COMO IMAGEN - APROVECHANDO TODO EL ANCHO
 // ============================================================
 function compartirCuadro() {
     try {
@@ -367,37 +353,32 @@ function compartirCuadro() {
         }
 
         // ============================================================
-        // CONFIGURACIÓN DE TAMAÑOS (TEXTOS GRANDES)
+        // CONFIGURACIÓN DE TAMAÑOS (todo el ancho, sin huecos)
         // ============================================================
         var ancho = 1080;
         var padding = 30;
-        var separacionBloques = 15;
+        var separacionBloques = 14;
 
-        // Fuentes
-        var fTitulo = 'bold 48px Arial, sans-serif';
+        // Fuentes GRANDES
+        var fTitulo = 'bold 52px Arial, sans-serif';
         var fBadge = 'bold 22px Arial, sans-serif';
-        var fListaTitulo = 'bold 24px Arial, sans-serif';
-        var fListaJugador = 'bold 26px Arial, sans-serif';
-        var fJornada = 'bold 32px Arial, sans-serif';
-        var fPistaLabel = 'bold 16px Arial, sans-serif';
-        var fJugador = 'bold 44px Arial, sans-serif';
-        var fVS = 'bold 28px Arial, sans-serif';
+        var fListaTitulo = 'bold 26px Arial, sans-serif';
+        var fListaJugador = 'bold 28px Arial, sans-serif';
+        var fJornada = 'bold 34px Arial, sans-serif';
+        var fPistaLabel = 'bold 17px Arial, sans-serif';
+        var fJugador = 'bold 50px Arial, sans-serif';
+        var fVS = 'bold 32px Arial, sans-serif';
 
-        // Alturas de bloques
-        var hTituloJornada = 60;
-        var hPista = 130;
-        var hCabecera = 180;
-        var hListaJugadores = 130;
+        // Alturas
+        var hCabecera = 190;
+        var hListaJugadores = 140;
+        var hTituloJornada = 65;
+        var hPista = 145;
 
         // ============================================================
-        // CÁLCULO DE ALTURA REAL
+        // CÁLCULO EXACTO DE ALTURA
         // ============================================================
-        // Cabecera: 180
-        // Lista: 130
-        // Separaciones: 15 entre bloques
-        // Cada jornada: 60 (título) + 8 (gap) + pistas*130 + 15 (sep)
         var alturaJornada = hTituloJornada + 8 + (cfg.pistas * hPista) + separacionBloques;
-
         var alturaTotal = padding
             + hCabecera + separacionBloques
             + hListaJugadores + separacionBloques
@@ -405,7 +386,7 @@ function compartirCuadro() {
             + padding;
 
         // ============================================================
-        // CREAR CANVAS
+        // CANVAS
         // ============================================================
         var canvas = document.createElement('canvas');
         canvas.width = ancho;
@@ -427,22 +408,20 @@ function compartirCuadro() {
         ctx.fillStyle = '#d9b46b';
         ctx.fillRect(padding, y + hCabecera - 6, ancho - padding*2, 6);
 
-        // Título
         ctx.fillStyle = '#001b3d';
         ctx.font = fTitulo;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(torneo.toUpperCase(), ancho/2, y + 60);
+        ctx.fillText(torneo.toUpperCase(), ancho/2, y + 65);
 
-        // Badges
         var badges = [fecha];
         if (cat) badges.push('CAT: ' + cat);
         if (hora) badges.push('H: ' + hora);
 
-        var badgeY = y + 105;
-        var badgeHeight = 48;
-        var badgePadding = 24;
-        var espacio = 14;
+        var badgeY = y + 115;
+        var badgeHeight = 50;
+        var badgePadding = 26;
+        var espacio = 16;
 
         ctx.font = fBadge;
         var anchos = [];
@@ -458,7 +437,7 @@ function compartirCuadro() {
         for (var i = 0; i < badges.length; i++) {
             var w = anchos[i];
             ctx.fillStyle = '#0057b8';
-            roundRect(ctx, xBadge, badgeY, w, badgeHeight, 24);
+            roundRect(ctx, xBadge, badgeY, w, badgeHeight, 25);
             ctx.fill();
             ctx.fillStyle = '#ffffff';
             ctx.textAlign = 'center';
@@ -481,11 +460,11 @@ function compartirCuadro() {
 
         ctx.fillStyle = '#0056b3';
         ctx.textAlign = 'left';
-        ctx.fillText('REVÉS:', padding + 25, y + 40);
+        ctx.fillText('REVÉS:', padding + 25, y + 42);
 
         ctx.fillStyle = '#b35f00';
         ctx.textAlign = 'left';
-        ctx.fillText('DRIVE:', padding + 25, y + 90);
+        ctx.fillText('DRIVE:', padding + 25, y + 96);
 
         var listaReveses = [];
         var listaDrives = [];
@@ -502,16 +481,16 @@ function compartirCuadro() {
         ctx.font = fListaJugador;
         ctx.fillStyle = '#003a7a';
         ctx.textAlign = 'left';
-        ctx.fillText(textoReveses, padding + 160, y + 40);
+        ctx.fillText(textoReveses, padding + 180, y + 42);
 
         ctx.fillStyle = '#7a3d00';
         ctx.textAlign = 'left';
-        ctx.fillText(textoDrives, padding + 160, y + 90);
+        ctx.fillText(textoDrives, padding + 180, y + 96);
 
         y += hListaJugadores + separacionBloques;
 
         // ============================================================
-        // JORNADAS
+        // JORNADAS - APROVECHANDO TODO EL ANCHO
         // ============================================================
         for (var idx = 0; idx < jornadasDOM.length; idx++) {
             var ronda = jornadasDOM[idx];
@@ -536,37 +515,55 @@ function compartirCuadro() {
                 roundRect(ctx, padding, y, ancho - padding*2, hPista - 10, 14);
                 ctx.fill();
 
-                // Etiqueta
+                // Etiqueta pista
                 ctx.fillStyle = '#999999';
                 ctx.font = fPistaLabel;
                 ctx.textAlign = 'left';
                 ctx.textBaseline = 'top';
                 var pistaLabel = pista.querySelector('.pista-label');
                 if (pistaLabel) {
-                    ctx.fillText(pistaLabel.innerText, padding + 20, y + 12);
+                    ctx.fillText(pistaLabel.innerText, padding + 22, y + 14);
                 }
 
-                // Parejas
+                // ============================================================
+                // PAREJAS - APROVECHANDO TODO EL ANCHO
+                // ============================================================
+                // Layout:
+                //   [Padding 30] [Pareja A: 2 nombres] [VS centro] [Pareja B: 2 nombres] [Padding 30]
+                //
+                // Cada nombre ocupa como máximo 9 caracteres * ~28px = ~252px.
+                // Dos nombres por lado = 252 px de ancho de columna.
+                // Total: 30 + 252 + 30 (VS gap) + 60 (VS) + 30 (VS gap) + 252 + 30 = 684 px.
+                // El canvas tiene 1080 px, así que podemos centrar las parejas
+                // con espacio sobrante por ambos lados, PERO queremos que los nombres
+                // sean aún más grandes. Vamos a subir la fuente a 50px.
+                //
+                // Con 50px, 9 caracteres ~ 280 px. Dos parejas: 30 + 280 + 30 + 60 + 30 + 280 + 30 = 740.
+                // Centramos en el canvas.
+                // ============================================================
+
                 var parejas = pista.querySelectorAll('.pareja-box');
                 var centroX = ancho / 2;
-                var filaY = y + 75;
+                var filaY = y + (hPista - 10) / 2 + 5;
 
                 if (parejas.length >= 2) {
                     var pA = parejas[0].querySelectorAll('span');
                     var pB = parejas[1].querySelectorAll('span');
 
-                    // Pareja A (alineada a la derecha, cerca del centro)
-                    var xA = centroX - 50;
+                    // Nombre pareja A: alineado a la derecha, pero terminando
+                    // a la izquierda del centro
+                    var separacionCentro = 40;
+                    var xA = centroX - separacionCentro;
                     ctx.textAlign = 'right';
                     ctx.textBaseline = 'middle';
 
                     ctx.fillStyle = '#0056b3';
                     ctx.font = fJugador;
-                    ctx.fillText(pA[0] ? pA[0].innerText : '', xA, filaY - 25);
+                    ctx.fillText(pA[0] ? pA[0].innerText : '', xA, filaY - 26);
 
                     ctx.fillStyle = '#b35f00';
                     ctx.font = fJugador;
-                    ctx.fillText(pA[1] ? pA[1].innerText : '', xA, filaY + 25);
+                    ctx.fillText(pA[1] ? pA[1].innerText : '', xA, filaY + 26);
 
                     // VS
                     ctx.fillStyle = '#cccccc';
@@ -575,17 +572,18 @@ function compartirCuadro() {
                     ctx.textBaseline = 'middle';
                     ctx.fillText('VS', centroX, filaY);
 
-                    // Pareja B (alineada a la izquierda, cerca del centro)
-                    var xB = centroX + 50;
+                    // Nombre pareja B: alineado a la izquierda, empezando
+                    // a la derecha del centro
+                    var xB = centroX + separacionCentro;
                     ctx.textAlign = 'left';
 
                     ctx.fillStyle = '#0056b3';
                     ctx.font = fJugador;
-                    ctx.fillText(pB[0] ? pB[0].innerText : '', xB, filaY - 25);
+                    ctx.fillText(pB[0] ? pB[0].innerText : '', xB, filaY - 26);
 
                     ctx.fillStyle = '#b35f00';
                     ctx.font = fJugador;
-                    ctx.fillText(pB[1] ? pB[1].innerText : '', xB, filaY + 25);
+                    ctx.fillText(pB[1] ? pB[1].innerText : '', xB, filaY + 26);
                 }
 
                 y += hPista;

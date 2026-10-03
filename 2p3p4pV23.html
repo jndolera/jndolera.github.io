@@ -293,7 +293,6 @@
 
         console.log('Cambio de formato a:', pistas, 'pistas →', cfg.nJug, 'jugadores');
 
-        // Mostrar/ocultar inputs según configuración
         for (let i = 0; i < 8; i++) {
             const r = document.getElementById(`r${i}`);
             const d = document.getElementById(`d${i}`);
@@ -315,7 +314,6 @@
         return `${dias[fechaObj.getDay()]} ${parseInt(d)} DE ${meses[fechaObj.getMonth()]}`;
     }
 
-    // Inicialización
     window.addEventListener('DOMContentLoaded', () => {
         const hoy = new Date().toISOString().split('T')[0];
         document.getElementById('inEvento').value = hoy;
@@ -324,7 +322,7 @@
     });
 
     // ============================================================
-    // ALGORITMO DE GENERACIÓN
+    // ALGORITMO DE GENERACIÓN (versión robusta)
     // ============================================================
     function generarEsquemaOptimo() {
         const pistas = parseInt(document.getElementById('inPistas').value);
@@ -342,7 +340,16 @@
                 parejasTodas.push([r, d]);
 
         const parejasPorJornada = pistas * 2;
+        const totalParejas = parejasPorJornada * nJornadas;
 
+        if (totalParejas > parejasTodas.length) {
+            console.warn('No hay suficientes parejas únicas revés-drive.');
+            return { jornadas: null, coste: Infinity, cfg, reveses, drives };
+        }
+
+        // ============================================================
+        // GENERAR CANDIDATO
+        // ============================================================
         function generarCandidato() {
             const parejas = [...parejasTodas];
             for (let i = parejas.length - 1; i > 0; i--) {
@@ -357,8 +364,10 @@
                 const usadosJornada = new Set();
                 const parejasJornada = [];
 
-                for (const p of parejas) {
+                // Recorremos TODA la lista buscando parejas compatibles
+                for (let k = 0; k < parejas.length; k++) {
                     if (parejasJornada.length >= parejasPorJornada) break;
+                    const p = parejas[k];
                     const key = p[0] + '-' + p[1];
                     if (parejasUsadas.has(key)) continue;
                     if (usadosJornada.has(p[0]) || usadosJornada.has(p[1])) continue;
@@ -374,6 +383,9 @@
             return jornadas;
         }
 
+        // ============================================================
+        // COSTE
+        // ============================================================
         function calcularCoste(jornadas) {
             let coste = 0;
             const todos = [...reveses, ...drives];
@@ -393,26 +405,19 @@
 
             const usoDrives = {};
             drives.forEach(d => usoDrives[d] = 0);
-            jornadas.forEach(j => j.forEach(p => { usoDrives[p[1]]++; }));
-            const valoresUsoD = Object.values(usoDrives);
-            coste += (Math.max(...valoresUsoD) - Math.min(...valoresUsoD)) * 80;
-
             const usoReveses = {};
             reveses.forEach(r => usoReveses[r] = 0);
-            jornadas.forEach(j => j.forEach(p => { usoReveses[p[0]]++; }));
-            const valoresUsoR = Object.values(usoReveses);
-            coste += (Math.max(...valoresUsoR) - Math.min(...valoresUsoR)) * 80;
+            jornadas.forEach(j => j.forEach(p => { usoDrives[p[1]]++; usoReveses[p[0]]++; }));
+            const vUD = Object.values(usoDrives);
+            const vUR = Object.values(usoReveses);
+            coste += (Math.max(...vUD) - Math.min(...vUD)) * 80;
+            coste += (Math.max(...vUR) - Math.min(...vUR)) * 80;
 
-            // 2. Pistas por jugador
+            // 2. Pistas por jugador (distribución determinista rotativa)
             const pistasPorJug = {};
             todos.forEach(j => pistasPorJug[j] = Array(pistas).fill(0));
             jornadas.forEach(j => {
-                const parejas = [...j];
-                for (let i = parejas.length - 1; i > 0; i--) {
-                    const k = Math.floor(Math.random() * (i + 1));
-                    [parejas[i], parejas[k]] = [parejas[k], parejas[i]];
-                }
-                parejas.forEach((p, idx) => {
+                j.forEach((p, idx) => {
                     const pistaIdx = idx % pistas;
                     pistasPorJug[p[0]][pistaIdx]++;
                     pistasPorJug[p[1]][pistaIdx]++;
@@ -429,15 +434,10 @@
                     coinc[todos[i] + '|' + todos[k]] = 0;
 
             jornadas.forEach(j => {
-                const parejas = [...j];
-                for (let i = parejas.length - 1; i > 0; i--) {
-                    const k = Math.floor(Math.random() * (i + 1));
-                    [parejas[i], parejas[k]] = [parejas[k], parejas[i]];
-                }
                 for (let pi = 0; pi < pistas; pi++) {
                     const jugadoresPista = [];
-                    const pA = parejas[pi * 2];
-                    const pB = parejas[pi * 2 + 1];
+                    const pA = j[pi * 2];
+                    const pB = j[pi * 2 + 1];
                     if (pA) jugadoresPista.push(pA[0], pA[1]);
                     if (pB) jugadoresPista.push(pB[0], pB[1]);
                     for (let a = 0; a < jugadoresPista.length; a++)
@@ -457,11 +457,23 @@
             return coste;
         }
 
+        // ============================================================
+        // MONTE CARLO con reintentos
+        // ============================================================
         let mejor = null, mejorCoste = Infinity;
-        const INTENTOS = 50000;
-        for (let i = 0; i < INTENTOS; i++) {
+        let intentos = 0;
+        let fallos = 0;
+        const MAX_INTENTOS = 30000;
+        const MAX_FALLOS_CONSECUTIVOS = 5000;
+
+        while (intentos < MAX_INTENTOS && fallos < MAX_FALLOS_CONSECUTIVOS) {
+            intentos++;
             const cand = generarCandidato();
-            if (!cand) continue;
+            if (!cand) {
+                fallos++;
+                continue;
+            }
+            fallos = 0;
             const c = calcularCoste(cand);
             if (c < mejorCoste) {
                 mejorCoste = c;
@@ -469,6 +481,9 @@
                 if (c === 0) break;
             }
         }
+
+        console.log('Intentos:', intentos, '| Fallos:', fallos, '| Mejor coste:', mejorCoste);
+
         return { jornadas: mejor, coste: mejorCoste, cfg, reveses, drives };
     }
 

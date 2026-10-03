@@ -26,30 +26,28 @@ input[type="date"],input[type="time"]{text-transform:none}
 .btn{background:var(--rmct-blue);color:#fff;border:none;padding:12px;border-radius:50px;width:100%;font-weight:800;cursor:pointer;margin-top:10px;box-shadow:0 4px 10px rgba(0,0,0,.2);font-size:.9rem}
 .btn-compartir{background:#25D366;margin-top:6px}
 .ronda-card{background:#fff;margin-bottom:10px;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.08)}
-.ronda-header{background:var(--rmct-dark);color:#fff;padding:6px 12px;font-weight:800;font-size:.85rem;letter-spacing:.5px}
-.pista-box{padding:8px 10px;border-bottom:1px solid #f0f0f0}
+.ronda-header{background:var(--rmct-dark);color:#fff;padding:8px 12px;font-weight:800;font-size:1rem;letter-spacing:.5px}
+.pista-box{padding:10px;border-bottom:1px solid #f0f0f0}
 .pista-box:last-child{border-bottom:none}
-.pista-label{font-size:.6rem;font-weight:800;color:#999;margin-bottom:5px;display:block;letter-spacing:1px}
-.match-row{display:flex;align-items:center;justify-content:space-between;gap:4px}
-.pareja-box{flex:1;min-width:0;background:#f8f9fa;padding:6px 4px;border-radius:8px;text-align:center;font-size:.72rem;line-height:1.15;overflow:hidden}
-.pareja-box span{display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pista-label{font-size:.65rem;font-weight:800;color:#999;margin-bottom:6px;display:block;letter-spacing:1px}
+.match-row{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.pareja-box{flex:1;min-width:0;background:#f8f9fa;padding:8px 6px;border-radius:8px;text-align:center;overflow:hidden}
+.pareja-box span{display:block;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:1.05rem;line-height:1.3}
 .p-reves{color:#0056b3}
 .p-drive{color:#b35f00}
-.marcador{display:flex;align-items:center;gap:3px;flex-shrink:0}
-.score-input{width:36px;padding:8px 0;text-align:center;font-weight:900;font-size:1rem;border:2px solid #ddd;border-radius:8px;background:#fff}
+.marcador{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.score-input{width:38px;padding:8px 0;text-align:center;font-weight:900;font-size:1.05rem;border:2px solid #ddd;border-radius:8px;background:#fff}
 .score-input:focus{border-color:var(--rmct-blue);outline:none}
 .rank-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#fff;margin-bottom:4px;border-radius:10px}
 .rank-info{display:flex;align-items:center;gap:8px;min-width:0}
 .rank-pos{font-weight:900;color:var(--rmct-gold);width:18px;text-align:center}
-.rank-name{font-weight:700;font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rank-stats{font-family:monospace;font-weight:700;font-size:.8rem;flex-shrink:0}
+.rank-name{font-weight:700;font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank-stats{font-family:monospace;font-weight:700;font-size:.85rem;flex-shrink:0}
 .info-box{background:#fffbe6;border-left:3px solid var(--rmct-gold);padding:6px 10px;border-radius:6px;font-size:.68rem;color:#666;margin-top:8px;line-height:1.35}
+
 @media (max-width:400px){
-    .section{padding:6px 8px}
-    .pareja-box{font-size:.68rem;padding:5px 3px}
-    .score-input{width:32px;font-size:.9rem;padding:7px 0}
-    .ronda-header{font-size:.8rem;padding:5px 10px}
-    .pista-box{padding:6px 8px}
+    .pareja-box span{font-size:.98rem}
+    .score-input{width:34px;font-size:.95rem}
 }
 </style>
 </head>
@@ -338,7 +336,7 @@ function generarCuadro() {
 }
 
 // ============================================================
-// COMPARTIR COMO IMAGEN
+// COMPARTIR COMO IMAGEN (optimizada)
 // ============================================================
 function compartirCuadro() {
     try {
@@ -355,57 +353,69 @@ function compartirCuadro() {
             return;
         }
 
-        var ancho = 1000;
-        var padding = 30;
+        // ============================================================
+        // CONFIGURACIÓN DE LA IMAGEN (grande y aprovechada)
+        // ============================================================
+        var ancho = 1200;
+        var padding = 25;
 
-        var altoCabecera = 170;
-        var altoJornada = 55;
-        var altoPista = 130;
-        var separacionJornada = 20;
+        // Alturas
+        var altoCabecera = 180;
+        var altoJornada = 60;
+        var altoPista = 150;
+        var separacionJornada = 18;
 
-        var fuenteTitulo = 'bold 34px Arial, sans-serif';
-        var fuenteBadge = 'bold 16px Arial, sans-serif';
-        var fuenteJornada = 'bold 22px Arial, sans-serif';
+        // Fuentes
+        var fuenteTitulo = 'bold 42px Arial, sans-serif';
+        var fuenteBadge = 'bold 18px Arial, sans-serif';
+        var fuenteJornada = 'bold 26px Arial, sans-serif';
         var fuentePistaLabel = 'bold 14px Arial, sans-serif';
-        var fuenteJugador = 'bold 24px Arial, sans-serif';
-        var fuenteVS = 'bold 18px Arial, sans-serif';
+        var fuenteJugador = 'bold 32px Arial, sans-serif';
+        var fuenteVS = 'bold 22px Arial, sans-serif';
 
+        // Alto total
         var altoTotal = padding + altoCabecera + separacionJornada;
         for (var i = 0; i < jornadas.length; i++) {
             altoTotal += altoJornada + (cfg.pistas * altoPista) + separacionJornada;
         }
         altoTotal += padding;
 
+        // Crear canvas
         var canvas = document.createElement('canvas');
         canvas.width = ancho;
         canvas.height = altoTotal;
         var ctx = canvas.getContext('2d');
 
+        // Fondo general
         ctx.fillStyle = '#f4f7fb';
         ctx.fillRect(0, 0, ancho, altoTotal);
 
+        // ---- CABECERA ----
         var y = padding;
         ctx.fillStyle = '#ffffff';
-        roundRect(ctx, padding, y, ancho - padding*2, altoCabecera, 15);
+        roundRect(ctx, padding, y, ancho - padding*2, altoCabecera, 18);
         ctx.fill();
 
+        // Borde dorado inferior
         ctx.fillStyle = '#d9b46b';
-        ctx.fillRect(padding, y + altoCabecera - 5, ancho - padding*2, 5);
+        ctx.fillRect(padding, y + altoCabecera - 6, ancho - padding*2, 6);
 
+        // Título
         ctx.fillStyle = '#001b3d';
         ctx.font = fuenteTitulo;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(torneo.toUpperCase(), ancho/2, y + 55);
+        ctx.fillText(torneo.toUpperCase(), ancho/2, y + 60);
 
+        // Badges
         var badges = [fecha];
         if (cat) badges.push('CAT: ' + cat);
         if (hora) badges.push('H: ' + hora);
 
-        var badgeY = y + 95;
-        var badgeHeight = 38;
-        var badgePadding = 20;
-        var espacio = 12;
+        var badgeY = y + 105;
+        var badgeHeight = 42;
+        var badgePadding = 22;
+        var espacio = 14;
 
         ctx.font = fuenteBadge;
         var anchos = [];
@@ -421,7 +431,7 @@ function compartirCuadro() {
         for (var i = 0; i < badges.length; i++) {
             var w = anchos[i];
             ctx.fillStyle = '#0057b8';
-            roundRect(ctx, xBadge, badgeY, w, badgeHeight, 19);
+            roundRect(ctx, xBadge, badgeY, w, badgeHeight, 21);
             ctx.fill();
             ctx.fillStyle = '#ffffff';
             ctx.textAlign = 'center';
@@ -432,63 +442,72 @@ function compartirCuadro() {
 
         y += altoCabecera + separacionJornada;
 
+        // ---- JORNADAS ----
         for (var idx = 0; idx < jornadas.length; idx++) {
             var ronda = jornadas[idx];
 
+            // Título de la jornada
             ctx.fillStyle = '#001b3d';
-            roundRect(ctx, padding, y, ancho - padding*2, altoJornada, 12);
+            roundRect(ctx, padding, y, ancho - padding*2, altoJornada, 14);
             ctx.fill();
             ctx.fillStyle = '#ffffff';
             ctx.font = fuenteJornada;
             ctx.textAlign = 'left';
             ctx.textBaseline = 'middle';
-            ctx.fillText('JORNADA ' + (idx+1), padding + 25, y + altoJornada/2 + 1);
+            ctx.fillText('JORNADA ' + (idx+1), padding + 30, y + altoJornada/2 + 1);
             y += altoJornada + 8;
 
+            // Pistas
             var pistasHTML = ronda.querySelectorAll('.pista-box');
             for (var pi = 0; pi < pistasHTML.length; pi++) {
                 var pista = pistasHTML[pi];
 
+                // Fondo de la pista (tarjeta blanca)
                 ctx.fillStyle = '#ffffff';
-                roundRect(ctx, padding, y, ancho - padding*2, altoPista - 10, 12);
+                roundRect(ctx, padding, y, ancho - padding*2, altoPista - 10, 14);
                 ctx.fill();
 
+                // Etiqueta de la pista
                 ctx.fillStyle = '#999999';
                 ctx.font = fuentePistaLabel;
                 ctx.textAlign = 'left';
                 ctx.textBaseline = 'middle';
                 var pistaLabel = pista.querySelector('.pista-label');
                 if (pistaLabel) {
-                    ctx.fillText(pistaLabel.innerText, padding + 20, y + 22);
+                    ctx.fillText(pistaLabel.innerText, padding + 20, y + 24);
                 }
 
+                // Parejas
                 var parejas = pista.querySelectorAll('.pareja-box');
                 var centroY = y + (altoPista - 10) / 2 + 15;
 
                 if (parejas.length >= 2) {
+                    // Pareja A (izquierda)
                     var pA = parejas[0].querySelectorAll('span');
                     ctx.textAlign = 'left';
                     ctx.fillStyle = '#0056b3';
                     ctx.font = fuenteJugador;
-                    ctx.fillText(pA[0] ? pA[0].innerText : '', padding + 35, centroY - 16);
+                    ctx.fillText(pA[0] ? pA[0].innerText : '', padding + 35, centroY - 20);
                     ctx.fillStyle = '#b35f00';
                     ctx.font = fuenteJugador;
-                    ctx.fillText(pA[1] ? pA[1].innerText : '', padding + 35, centroY + 18);
+                    ctx.fillText(pA[1] ? pA[1].innerText : '', padding + 35, centroY + 22);
 
+                    // "VS" centro
                     ctx.fillStyle = '#cccccc';
                     ctx.font = fuenteVS;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillText('VS', ancho/2, centroY);
 
+                    // Pareja B (derecha)
                     var pB = parejas[1].querySelectorAll('span');
                     ctx.textAlign = 'right';
                     ctx.fillStyle = '#0056b3';
                     ctx.font = fuenteJugador;
-                    ctx.fillText(pB[0] ? pB[0].innerText : '', ancho - padding - 35, centroY - 16);
+                    ctx.fillText(pB[0] ? pB[0].innerText : '', ancho - padding - 35, centroY - 20);
                     ctx.fillStyle = '#b35f00';
                     ctx.font = fuenteJugador;
-                    ctx.fillText(pB[1] ? pB[1].innerText : '', ancho - padding - 35, centroY + 18);
+                    ctx.fillText(pB[1] ? pB[1].innerText : '', ancho - padding - 35, centroY + 22);
                 }
 
                 y += altoPista;
@@ -497,6 +516,9 @@ function compartirCuadro() {
             y += separacionJornada;
         }
 
+        // ============================================================
+        // EXPORTAR
+        // ============================================================
         canvas.toBlob(function(blob) {
             var archivo = new File([blob], 'cuadro-americano.png', { type: 'image/png' });
 

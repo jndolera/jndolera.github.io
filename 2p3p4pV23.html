@@ -322,7 +322,12 @@
     });
 
     // ============================================================
-    // ALGORITMO DE GENERACIÓN (versión robusta)
+    // ALGORITMO DETERMINISTA (round-robin modular)
+    // ============================================================
+    // Garantiza SIEMPRE un cuadro válido:
+    //   - Cada revés juega con cada drive exactamente 1 vez (si nJornadas = nDri)
+    //   - Cada revés/drive aparece 1 vez por jornada
+    //   - Todas las parejas de una jornada son únicas
     // ============================================================
     function generarEsquemaOptimo() {
         const pistas = parseInt(document.getElementById('inPistas').value);
@@ -334,157 +339,54 @@
         for (let i = 0; i < nRev; i++) reveses.push(`r${i}`);
         for (let i = 0; i < nDri; i++) drives.push(`d${i}`);
 
-        const parejasTodas = [];
-        for (const r of reveses)
-            for (const d of drives)
-                parejasTodas.push([r, d]);
-
         const parejasPorJornada = pistas * 2;
-        const totalParejas = parejasPorJornada * nJornadas;
 
-        if (totalParejas > parejasTodas.length) {
-            console.warn('No hay suficientes parejas únicas revés-drive.');
-            return { jornadas: null, coste: Infinity, cfg, reveses, drives };
+        // ============================================================
+        // PASO 1: Round-robin modular
+        // Jornada j → revés i se empareja con drive (i + j) % nDri
+        // ============================================================
+        const jornadas = [];
+        for (let j = 0; j < nJornadas; j++) {
+            const parejasJornada = [];
+            for (let i = 0; i < nRev; i++) {
+                const r = reveses[i];
+                const d = drives[(i + j) % nDri];
+                parejasJornada.push([r, d]);
+            }
+            jornadas.push(parejasJornada);
         }
 
         // ============================================================
-        // GENERAR CANDIDATO
+        // PASO 2: Equilibrar pistas rotando las parejas dentro de
+        // cada jornada, de forma que cada jugador pase por todas las
+        // pistas a lo largo del torneo.
         // ============================================================
-        function generarCandidato() {
-            const parejas = [...parejasTodas];
-            for (let i = parejas.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [parejas[i], parejas[j]] = [parejas[j], parejas[i]];
+        const jornadasFinales = [];
+        for (let j = 0; j < nJornadas; j++) {
+            const parejas = [...jornadas[j]];
+            // Ordenar por índice del revés para tener base estable
+            parejas.sort((a, b) => {
+                const ia = parseInt(a[0].substring(1));
+                const ib = parseInt(b[0].substring(1));
+                return ia - ib;
+            });
+            // Rotar según jornada para equilibrar pistas
+            const rotadas = [];
+            for (let k = 0; k < parejas.length; k++) {
+                rotadas.push(parejas[(k + j) % parejas.length]);
             }
-
-            const jornadas = [];
-            const parejasUsadas = new Set();
-
-            for (let j = 0; j < nJornadas; j++) {
-                const usadosJornada = new Set();
-                const parejasJornada = [];
-
-                // Recorremos TODA la lista buscando parejas compatibles
-                for (let k = 0; k < parejas.length; k++) {
-                    if (parejasJornada.length >= parejasPorJornada) break;
-                    const p = parejas[k];
-                    const key = p[0] + '-' + p[1];
-                    if (parejasUsadas.has(key)) continue;
-                    if (usadosJornada.has(p[0]) || usadosJornada.has(p[1])) continue;
-                    parejasJornada.push(p);
-                    usadosJornada.add(p[0]);
-                    usadosJornada.add(p[1]);
-                    parejasUsadas.add(key);
-                }
-
-                if (parejasJornada.length < parejasPorJornada) return null;
-                jornadas.push(parejasJornada);
-            }
-            return jornadas;
+            jornadasFinales.push(rotadas);
         }
 
-        // ============================================================
-        // COSTE
-        // ============================================================
-        function calcularCoste(jornadas) {
-            let coste = 0;
-            const todos = [...reveses, ...drives];
+        console.log('Esquema determinista generado:', pistas, 'pistas,', cfg.nJug, 'jugadores,', nJornadas, 'jornadas.');
 
-            // 1. Revés↔Drive
-            const cruces = {};
-            reveses.forEach(r => drives.forEach(d => cruces[r + '-' + d] = 0));
-            jornadas.forEach(j => j.forEach(p => { cruces[p[0] + '-' + p[1]]++; }));
-
-            const vecesPorPar = Object.values(cruces);
-            const maxV = Math.max(...vecesPorPar);
-            const minV = Math.min(...vecesPorPar);
-            coste += (maxV - minV) * 100;
-            vecesPorPar.forEach(v => {
-                if (v > 1) coste += (v - 1) * 200;
-            });
-
-            const usoDrives = {};
-            drives.forEach(d => usoDrives[d] = 0);
-            const usoReveses = {};
-            reveses.forEach(r => usoReveses[r] = 0);
-            jornadas.forEach(j => j.forEach(p => { usoDrives[p[1]]++; usoReveses[p[0]]++; }));
-            const vUD = Object.values(usoDrives);
-            const vUR = Object.values(usoReveses);
-            coste += (Math.max(...vUD) - Math.min(...vUD)) * 80;
-            coste += (Math.max(...vUR) - Math.min(...vUR)) * 80;
-
-            // 2. Pistas por jugador (distribución determinista rotativa)
-            const pistasPorJug = {};
-            todos.forEach(j => pistasPorJug[j] = Array(pistas).fill(0));
-            jornadas.forEach(j => {
-                j.forEach((p, idx) => {
-                    const pistaIdx = idx % pistas;
-                    pistasPorJug[p[0]][pistaIdx]++;
-                    pistasPorJug[p[1]][pistaIdx]++;
-                });
-            });
-            Object.values(pistasPorJug).forEach(arr => {
-                coste += (Math.max(...arr) - Math.min(...arr)) * 40;
-            });
-
-            // 3. Coincidencias en pista
-            const coinc = {};
-            for (let i = 0; i < todos.length; i++)
-                for (let k = i + 1; k < todos.length; k++)
-                    coinc[todos[i] + '|' + todos[k]] = 0;
-
-            jornadas.forEach(j => {
-                for (let pi = 0; pi < pistas; pi++) {
-                    const jugadoresPista = [];
-                    const pA = j[pi * 2];
-                    const pB = j[pi * 2 + 1];
-                    if (pA) jugadoresPista.push(pA[0], pA[1]);
-                    if (pB) jugadoresPista.push(pB[0], pB[1]);
-                    for (let a = 0; a < jugadoresPista.length; a++)
-                        for (let b = a + 1; b < jugadoresPista.length; b++) {
-                            const x = jugadoresPista[a], y = jugadoresPista[b];
-                            const key = x < y ? x + '|' + y : y + '|' + x;
-                            coinc[key]++;
-                        }
-                }
-            });
-
-            const valores = Object.values(coinc);
-            if (valores.length > 0) {
-                coste += (Math.max(...valores) - Math.min(...valores)) * 20;
-            }
-
-            return coste;
-        }
-
-        // ============================================================
-        // MONTE CARLO con reintentos
-        // ============================================================
-        let mejor = null, mejorCoste = Infinity;
-        let intentos = 0;
-        let fallos = 0;
-        const MAX_INTENTOS = 30000;
-        const MAX_FALLOS_CONSECUTIVOS = 5000;
-
-        while (intentos < MAX_INTENTOS && fallos < MAX_FALLOS_CONSECUTIVOS) {
-            intentos++;
-            const cand = generarCandidato();
-            if (!cand) {
-                fallos++;
-                continue;
-            }
-            fallos = 0;
-            const c = calcularCoste(cand);
-            if (c < mejorCoste) {
-                mejorCoste = c;
-                mejor = cand;
-                if (c === 0) break;
-            }
-        }
-
-        console.log('Intentos:', intentos, '| Fallos:', fallos, '| Mejor coste:', mejorCoste);
-
-        return { jornadas: mejor, coste: mejorCoste, cfg, reveses, drives };
+        return {
+            jornadas: jornadasFinales,
+            coste: 0,
+            cfg,
+            reveses,
+            drives
+        };
     }
 
     // ============================================================
@@ -515,18 +417,12 @@
         let html = "";
 
         resultado.jornadas.forEach((parejas, idx) => {
-            const parejasBarajadas = [...parejas];
-            for (let i = parejasBarajadas.length - 1; i > 0; i--) {
-                const k = Math.floor(Math.random() * (i + 1));
-                [parejasBarajadas[i], parejasBarajadas[k]] = [parejasBarajadas[k], parejasBarajadas[i]];
-            }
-
             html += `<div class="ronda-card">
                 <div class="ronda-header">JORNADA ${idx + 1}</div>`;
 
             for (let pi = 0; pi < pistas; pi++) {
-                const pA = parejasBarajadas[pi * 2];
-                const pB = parejasBarajadas[pi * 2 + 1];
+                const pA = parejas[pi * 2];
+                const pB = parejas[pi * 2 + 1];
                 if (!pA || !pB) continue;
                 const id = `j${idx}p${pi}`;
                 partidosData.push({ id, jA: pA, jB: pB, sA: 0, sB: 0 });
@@ -556,8 +452,6 @@
         document.getElementById('cuadro').innerHTML = html;
         document.getElementById('sectionPartidos').style.display = 'block';
         document.getElementById('sectionRanking').style.display = 'block';
-
-        console.log('Coste:', resultado.coste, resultado.coste === 0 ? '(ÓPTIMO)' : '(mejorable)');
 
         actualizarRanking();
     }

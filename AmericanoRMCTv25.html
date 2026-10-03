@@ -7,38 +7,52 @@
 <style>
 :root{--rmct-blue:#0057b8;--rmct-dark:#001b3d;--rmct-gold:#d9b46b;--reves-bg:#e3f2ff;--drive-bg:#fdf2e9}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{background:linear-gradient(135deg,var(--rmct-dark) 0%,var(--rmct-blue) 100%);margin:0;padding:10px;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
-.container{max-width:600px;margin:0 auto;background:#f4f7fb;border-radius:25px;overflow:hidden;box-shadow:0 15px 35px rgba(0,0,0,.4)}
-.header{background:#fff;padding:15px;text-align:center;border-bottom:4px solid var(--rmct-gold)}
-.header img{width:160px;margin-bottom:8px}
-.tournament-title{margin:0;font-size:1.2rem;color:var(--rmct-dark);font-weight:800;text-transform:uppercase}
-.badges{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin-top:8px}
-.badge{background:var(--rmct-blue);color:#fff;padding:4px 10px;border-radius:50px;font-size:.7rem;font-weight:600}
-.section{padding:15px;border-bottom:1px solid #ddd}
-.section-title{font-size:.85rem;font-weight:800;color:var(--rmct-blue);margin-bottom:12px;text-transform:uppercase}
-.player-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.column-label{font-size:.65rem;font-weight:900;text-align:center;color:#666;margin-bottom:4px}
-input,select{width:100%;padding:10px;border:1px solid #ccc;border-radius:10px;font-size:.8rem;outline:none;text-transform:uppercase;font-weight:600;background:#fff}
+html,body{margin:0;padding:0}
+body{background:linear-gradient(135deg,var(--rmct-dark) 0%,var(--rmct-blue) 100%);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:6px}
+.container{max-width:100%;margin:0 auto;background:#f4f7fb;border-radius:15px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,.4)}
+.header{background:#fff;padding:8px 10px;text-align:center;border-bottom:3px solid var(--rmct-gold)}
+.header img{width:110px;margin-bottom:4px}
+.tournament-title{margin:0;font-size:1rem;color:var(--rmct-dark);font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.badges{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:5px}
+.badge{background:var(--rmct-blue);color:#fff;padding:3px 8px;border-radius:50px;font-size:.65rem;font-weight:700}
+.section{padding:8px 10px;border-bottom:1px solid #ddd}
+.section-title{font-size:.8rem;font-weight:800;color:var(--rmct-blue);margin-bottom:8px;text-transform:uppercase}
+.player-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.column-label{font-size:.6rem;font-weight:900;text-align:center;color:#666;margin-bottom:3px;letter-spacing:.5px}
+input,select{width:100%;padding:9px 8px;border:1px solid #ccc;border-radius:8px;font-size:.8rem;outline:none;text-transform:uppercase;font-weight:700;background:#fff}
+input[type="date"],input[type="time"]{text-transform:none}
 .in-reves{border-left:4px solid #0077ff;background:var(--reves-bg)}
 .in-drive{border-left:4px solid #ff8800;background:var(--drive-bg)}
-.btn{background:var(--rmct-blue);color:#fff;border:none;padding:14px;border-radius:50px;width:100%;font-weight:800;cursor:pointer;margin-top:15px;box-shadow:0 4px 10px rgba(0,0,0,.2)}
-.btn-compartir{background:#25D366;margin-top:8px}
-.ronda-card{background:#fff;margin-bottom:15px;border-radius:18px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,.05)}
-.ronda-header{background:var(--rmct-dark);color:#fff;padding:8px 15px;font-weight:700;font-size:.9rem}
-.pista-box{padding:12px;border-bottom:1px dashed #eee}
-.pista-label{font-size:.65rem;font-weight:800;color:#999;margin-bottom:5px;display:block}
-.match-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.pareja-box{flex:1;background:#f8f9fa;padding:8px;border-radius:10px;text-align:center;font-size:.75rem;line-height:1.2}
-.pareja-box span{display:block;font-weight:700}
+.btn{background:var(--rmct-blue);color:#fff;border:none;padding:12px;border-radius:50px;width:100%;font-weight:800;cursor:pointer;margin-top:10px;box-shadow:0 4px 10px rgba(0,0,0,.2);font-size:.9rem}
+.btn-compartir{background:#25D366;margin-top:6px}
+.ronda-card{background:#fff;margin-bottom:10px;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.ronda-header{background:var(--rmct-dark);color:#fff;padding:6px 12px;font-weight:800;font-size:.85rem;letter-spacing:.5px}
+.pista-box{padding:8px 10px;border-bottom:1px solid #f0f0f0}
+.pista-box:last-child{border-bottom:none}
+.pista-label{font-size:.6rem;font-weight:800;color:#999;margin-bottom:5px;display:block;letter-spacing:1px}
+.match-row{display:flex;align-items:center;justify-content:space-between;gap:4px}
+.pareja-box{flex:1;min-width:0;background:#f8f9fa;padding:6px 4px;border-radius:8px;text-align:center;font-size:.72rem;line-height:1.15;overflow:hidden}
+.pareja-box span{display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .p-reves{color:#0056b3}
 .p-drive{color:#b35f00}
-.score-input{width:40px;padding:6px 0;text-align:center;font-weight:900;font-size:1rem;border:2px solid #ddd}
-.rank-item{display:flex;justify-content:space-between;align-items:center;padding:10px 15px;background:#fff;margin-bottom:5px;border-radius:12px}
-.rank-info{display:flex;align-items:center;gap:10px}
-.rank-pos{font-weight:900;color:var(--rmct-gold);width:20px}
-.rank-name{font-weight:700;font-size:.8rem}
-.rank-stats{font-family:monospace;font-weight:700;font-size:.85rem}
-.info-box{background:#fffbe6;border-left:4px solid var(--rmct-gold);padding:8px 12px;border-radius:8px;font-size:.7rem;color:#666;margin-top:10px;line-height:1.4}
+.marcador{display:flex;align-items:center;gap:3px;flex-shrink:0}
+.score-input{width:36px;padding:8px 0;text-align:center;font-weight:900;font-size:1rem;border:2px solid #ddd;border-radius:8px;background:#fff}
+.score-input:focus{border-color:var(--rmct-blue);outline:none}
+.rank-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#fff;margin-bottom:4px;border-radius:10px}
+.rank-info{display:flex;align-items:center;gap:8px;min-width:0}
+.rank-pos{font-weight:900;color:var(--rmct-gold);width:18px;text-align:center}
+.rank-name{font-weight:700;font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank-stats{font-family:monospace;font-weight:700;font-size:.8rem;flex-shrink:0}
+.info-box{background:#fffbe6;border-left:3px solid var(--rmct-gold);padding:6px 10px;border-radius:6px;font-size:.68rem;color:#666;margin-top:8px;line-height:1.35}
+
+/* Ajustes específicos para móvil muy estrecho */
+@media (max-width:400px){
+    .section{padding:6px 8px}
+    .pareja-box{font-size:.68rem;padding:5px 3px}
+    .score-input{width:32px;font-size:.9rem;padding:7px 0}
+    .ronda-header{font-size:.8rem;padding:5px 10px}
+    .pista-box{padding:6px 8px}
+}
 </style>
 </head>
 <body>
@@ -57,18 +71,18 @@ input,select{width:100%;padding:10px;border:1px solid #ccc;border-radius:10px;fo
 
     <div class="section">
         <div class="section-title">⚙️ Datos y Jugadores</div>
-        <div class="player-grid" style="margin-bottom:15px">
+        <div class="player-grid" style="margin-bottom:10px">
             <input type="text" id="inTorneo" value="TORNEO RMCT">
             <input type="text" id="inCat" value="3ª/4ª">
             <input type="date" id="inEvento">
             <input type="time" id="inHora" value="10:00">
         </div>
-        <div style="margin-bottom:15px">
-            <div class="column-label" style="text-align:left;margin-bottom:6px">FORMATO DEL TORNEO</div>
+        <div style="margin-bottom:10px">
+            <div class="column-label" style="text-align:left;margin-bottom:4px">FORMATO DEL TORNEO</div>
             <select id="inPistas" onchange="actualizarVisibilidadJugadores()">
-                <option value="2" selected>2 PISTAS · 8 JUGADORES (4 revés + 4 drive)</option>
-                <option value="3">3 PISTAS · 12 JUGADORES (6 revés + 6 drive)</option>
-                <option value="4">4 PISTAS · 16 JUGADORES (8 revés + 8 drive)</option>
+                <option value="2" selected>2 PISTAS · 8 JUGADORES</option>
+                <option value="3">3 PISTAS · 12 JUGADORES</option>
+                <option value="4">4 PISTAS · 16 JUGADORES</option>
             </select>
         </div>
         <div class="player-grid">
@@ -119,9 +133,6 @@ var partidosData = [];
 var jugadoresGlobal = {};
 var N_JORNADAS = 4;
 
-// ============================================================
-// CONFIGURACIÓN
-// ============================================================
 function configPorPistas(pistas) {
     var nJug = pistas * 4;
     return { pistas: pistas, nJug: nJug, nRev: nJug/2, nDri: nJug/2, nJornadas: N_JORNADAS };
@@ -302,8 +313,10 @@ function generarCuadro() {
                 html += '<span class="p-reves">' + jugadoresGlobal[pA[0]] + '</span>';
                 html += '<span class="p-drive">' + jugadoresGlobal[pA[1]] + '</span>';
                 html += '</div>';
+                html += '<div class="marcador">';
                 html += '<input type="number" class="score-input" id="scA_' + id + '" onchange="registrar(\'' + id + '\')">';
                 html += '<input type="number" class="score-input" id="scB_' + id + '" onchange="registrar(\'' + id + '\')">';
+                html += '</div>';
                 html += '<div class="pareja-box">';
                 html += '<span class="p-reves">' + jugadoresGlobal[pB[0]] + '</span>';
                 html += '<span class="p-drive">' + jugadoresGlobal[pB[1]] + '</span>';
@@ -327,7 +340,7 @@ function generarCuadro() {
 }
 
 // ============================================================
-// COMPARTIR COMO IMAGEN (SIN LIBRERÍAS EXTERNAS)
+// COMPARTIR COMO IMAGEN
 // ============================================================
 function compartirCuadro() {
     try {
@@ -344,18 +357,24 @@ function compartirCuadro() {
             return;
         }
 
-        // ============================================================
-        // DIBUJAR LA IMAGEN CON CANVAS NATIVO
-        // ============================================================
-        var ancho = 700;
-        var padding = 20;
+        var ancho = 1000;
+        var padding = 30;
 
-        var altoCabecera = 130;
-        var altoJornada = 40;
-        var altoPista = 80;
-        var altoTotal = padding + altoCabecera + padding;
+        var altoCabecera = 170;
+        var altoJornada = 55;
+        var altoPista = 130;
+        var separacionJornada = 20;
+
+        var fuenteTitulo = 'bold 34px Arial, sans-serif';
+        var fuenteBadge = 'bold 16px Arial, sans-serif';
+        var fuenteJornada = 'bold 22px Arial, sans-serif';
+        var fuentePistaLabel = 'bold 14px Arial, sans-serif';
+        var fuenteJugador = 'bold 24px Arial, sans-serif';
+        var fuenteVS = 'bold 18px Arial, sans-serif';
+
+        var altoTotal = padding + altoCabecera + separacionJornada;
         for (var i = 0; i < jornadas.length; i++) {
-            altoTotal += altoJornada + (cfg.pistas * altoPista) + 15;
+            altoTotal += altoJornada + (cfg.pistas * altoPista) + separacionJornada;
         }
         altoTotal += padding;
 
@@ -364,122 +383,122 @@ function compartirCuadro() {
         canvas.height = altoTotal;
         var ctx = canvas.getContext('2d');
 
-        // Fondo
         ctx.fillStyle = '#f4f7fb';
         ctx.fillRect(0, 0, ancho, altoTotal);
 
-        // ---- Cabecera ----
         var y = padding;
         ctx.fillStyle = '#ffffff';
-        ctx.fillRect(padding, y, ancho - padding*2, altoCabecera);
+        roundRect(ctx, padding, y, ancho - padding*2, altoCabecera, 15);
+        ctx.fill();
 
         ctx.fillStyle = '#d9b46b';
-        ctx.fillRect(padding, y + altoCabecera - 4, ancho - padding*2, 4);
+        ctx.fillRect(padding, y + altoCabecera - 5, ancho - padding*2, 5);
 
         ctx.fillStyle = '#001b3d';
-        ctx.font = 'bold 22px Arial, sans-serif';
+        ctx.font = fuenteTitulo;
         ctx.textAlign = 'center';
-        ctx.fillText(torneo.toUpperCase(), ancho/2, y + 45);
+        ctx.textBaseline = 'middle';
+        ctx.fillText(torneo.toUpperCase(), ancho/2, y + 55);
 
         var badges = [fecha];
         if (cat) badges.push('CAT: ' + cat);
         if (hora) badges.push('H: ' + hora);
 
-        var badgeY = y + 65;
-        var badgeHeight = 24;
-        var badgePadding = 12;
-        var espacio = 8;
+        var badgeY = y + 95;
+        var badgeHeight = 38;
+        var badgePadding = 20;
+        var espacio = 12;
 
-        ctx.font = 'bold 12px Arial, sans-serif';
+        ctx.font = fuenteBadge;
         var anchos = [];
-        var anchoTotal = 0;
+        var anchoTotalBadges = 0;
         for (var i = 0; i < badges.length; i++) {
             var w = ctx.measureText(badges[i]).width + badgePadding * 2;
             anchos.push(w);
-            anchoTotal += w;
+            anchoTotalBadges += w;
         }
-        anchoTotal += espacio * (badges.length - 1);
+        anchoTotalBadges += espacio * (badges.length - 1);
 
-        var xBadge = (ancho - anchoTotal) / 2;
+        var xBadge = (ancho - anchoTotalBadges) / 2;
         for (var i = 0; i < badges.length; i++) {
             var w = anchos[i];
             ctx.fillStyle = '#0057b8';
-            roundRect(ctx, xBadge, badgeY, w, badgeHeight, 12);
+            roundRect(ctx, xBadge, badgeY, w, badgeHeight, 19);
             ctx.fill();
             ctx.fillStyle = '#ffffff';
             ctx.textAlign = 'center';
-            ctx.fillText(badges[i], xBadge + w/2, badgeY + 16);
+            ctx.textBaseline = 'middle';
+            ctx.fillText(badges[i], xBadge + w/2, badgeY + badgeHeight/2 + 1);
             xBadge += w + espacio;
         }
 
-        y += altoCabecera + 20;
+        y += altoCabecera + separacionJornada;
 
-        // ---- Jornadas ----
         for (var idx = 0; idx < jornadas.length; idx++) {
             var ronda = jornadas[idx];
 
             ctx.fillStyle = '#001b3d';
-            roundRect(ctx, padding, y, ancho - padding*2, altoJornada, 8);
+            roundRect(ctx, padding, y, ancho - padding*2, altoJornada, 12);
             ctx.fill();
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 14px Arial, sans-serif';
+            ctx.font = fuenteJornada;
             ctx.textAlign = 'left';
-            ctx.fillText('JORNADA ' + (idx+1), padding + 15, y + 26);
-            y += altoJornada + 5;
+            ctx.textBaseline = 'middle';
+            ctx.fillText('JORNADA ' + (idx+1), padding + 25, y + altoJornada/2 + 1);
+            y += altoJornada + 8;
 
             var pistasHTML = ronda.querySelectorAll('.pista-box');
             for (var pi = 0; pi < pistasHTML.length; pi++) {
                 var pista = pistasHTML[pi];
 
                 ctx.fillStyle = '#ffffff';
-                roundRect(ctx, padding, y, ancho - padding*2, altoPista - 5, 8);
+                roundRect(ctx, padding, y, ancho - padding*2, altoPista - 10, 12);
                 ctx.fill();
 
                 ctx.fillStyle = '#999999';
-                ctx.font = 'bold 10px Arial, sans-serif';
+                ctx.font = fuentePistaLabel;
                 ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
                 var pistaLabel = pista.querySelector('.pista-label');
                 if (pistaLabel) {
-                    ctx.fillText(pistaLabel.innerText, padding + 12, y + 15);
+                    ctx.fillText(pistaLabel.innerText, padding + 20, y + 22);
                 }
 
                 var parejas = pista.querySelectorAll('.pareja-box');
-                var centroY = y + 45;
+                var centroY = y + (altoPista - 10) / 2 + 15;
 
                 if (parejas.length >= 2) {
                     var pA = parejas[0].querySelectorAll('span');
                     ctx.textAlign = 'left';
                     ctx.fillStyle = '#0056b3';
-                    ctx.font = 'bold 14px Arial, sans-serif';
-                    ctx.fillText(pA[0] ? pA[0].innerText : '', padding + 20, centroY);
+                    ctx.font = fuenteJugador;
+                    ctx.fillText(pA[0] ? pA[0].innerText : '', padding + 35, centroY - 16);
                     ctx.fillStyle = '#b35f00';
-                    ctx.font = 'bold 14px Arial, sans-serif';
-                    ctx.fillText(pA[1] ? pA[1].innerText : '', padding + 20, centroY + 20);
+                    ctx.font = fuenteJugador;
+                    ctx.fillText(pA[1] ? pA[1].innerText : '', padding + 35, centroY + 18);
 
-                    ctx.fillStyle = '#999999';
-                    ctx.font = 'bold 12px Arial, sans-serif';
+                    ctx.fillStyle = '#cccccc';
+                    ctx.font = fuenteVS;
                     ctx.textAlign = 'center';
-                    ctx.fillText('VS', ancho/2, centroY + 10);
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('VS', ancho/2, centroY);
 
                     var pB = parejas[1].querySelectorAll('span');
                     ctx.textAlign = 'right';
                     ctx.fillStyle = '#0056b3';
-                    ctx.font = 'bold 14px Arial, sans-serif';
-                    ctx.fillText(pB[0] ? pB[0].innerText : '', ancho - padding - 20, centroY);
+                    ctx.font = fuenteJugador;
+                    ctx.fillText(pB[0] ? pB[0].innerText : '', ancho - padding - 35, centroY - 16);
                     ctx.fillStyle = '#b35f00';
-                    ctx.font = 'bold 14px Arial, sans-serif';
-                    ctx.fillText(pB[1] ? pB[1].innerText : '', ancho - padding - 20, centroY + 20);
+                    ctx.font = fuenteJugador;
+                    ctx.fillText(pB[1] ? pB[1].innerText : '', ancho - padding - 35, centroY + 18);
                 }
 
                 y += altoPista;
             }
 
-            y += 15;
+            y += separacionJornada;
         }
 
-        // ============================================================
-        // EXPORTAR
-        // ============================================================
         canvas.toBlob(function(blob) {
             var archivo = new File([blob], 'cuadro-americano.png', { type: 'image/png' });
 
@@ -588,24 +607,3 @@ function actualizarRanking() {
         html += '<div class="rank-stats">';
         html += '<span style="color:var(--rmct-blue)">' + j.vic + 'V</span>';
         html += '<span style="color:#666">| ' + (j.dif > 0 ? '+' + j.dif : j.dif) + '</span>';
-        html += '</div></div>';
-    }
-    document.getElementById('ranking').innerHTML = html;
-}
-
-// ============================================================
-// INICIALIZACIÓN
-// ============================================================
-window.addEventListener('DOMContentLoaded', function() {
-    var hoy = new Date();
-    var y = hoy.getFullYear();
-    var m = String(hoy.getMonth() + 1).padStart(2, '0');
-    var d = String(hoy.getDate()).padStart(2, '0');
-    document.getElementById('inEvento').value = y + '-' + m + '-' + d;
-    document.getElementById('dispEv').innerText = formatearFecha(y + '-' + m + '-' + d);
-    actualizarVisibilidadJugadores();
-});
-</script>
-
-</body>
-</html>

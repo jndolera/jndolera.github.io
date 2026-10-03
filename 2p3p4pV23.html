@@ -65,9 +65,9 @@ input,select{width:100%;padding:10px;border:1px solid #ccc;border-radius:10px;fo
         <div style="margin-bottom:15px">
             <div class="column-label" style="text-align:left;margin-bottom:6px">FORMATO DEL TORNEO</div>
             <select id="inPistas" onchange="actualizarVisibilidadJugadores()">
-                <option value="2" selected>2 PISTAS · 8 JUGADORES</option>
-                <option value="3">3 PISTAS · 12 JUGADORES</option>
-                <option value="4">4 PISTAS · 16 JUGADORES</option>
+                <option value="2" selected>2 PISTAS · 8 JUGADORES (4 revés + 4 drive)</option>
+                <option value="3">3 PISTAS · 12 JUGADORES (6 revés + 6 drive)</option>
+                <option value="4">4 PISTAS · 16 JUGADORES (8 revés + 8 drive)</option>
             </select>
         </div>
         <div class="player-grid">
@@ -95,7 +95,7 @@ input,select{width:100%;padding:10px;border:1px solid #ccc;border-radius:10px;fo
             </div>
         </div>
         <button class="btn" onclick="generarCuadro()">🎯 GENERAR CUADRO</button>
-        <div class="info-box" id="infoBox">ℹ️ 2 pistas, 8 jugadores, 4 jornadas.</div>
+        <div class="info-box" id="infoBox">ℹ️ 2 pistas, 8 jugadores (4 revés + 4 drive), 4 jornadas.</div>
     </div>
 
     <div class="section" id="sectionPartidos" style="display:none">
@@ -111,32 +111,23 @@ input,select{width:100%;padding:10px;border:1px solid #ccc;border-radius:10px;fo
 </div>
 
 <script>
-// ============================================================
-// VARIABLES GLOBALES
-// ============================================================
 var partidosData = [];
 var jugadoresGlobal = {};
 var N_JORNADAS = 4;
 
 // ============================================================
-// UTILIDADES
+// CONFIGURACIÓN
 // ============================================================
 function configPorPistas(pistas) {
     var nJug = pistas * 4;
-    return {
-        pistas: pistas,
-        nJug: nJug,
-        nRev: nJug / 2,
-        nDri: nJug / 2,
-        nJornadas: N_JORNADAS
-    };
+    return { pistas: pistas, nJug: nJug, nRev: nJug/2, nDri: nJug/2, nJornadas: N_JORNADAS };
 }
 
 function formatearFecha(fechaInput) {
     if (!fechaInput) return 'FECHA';
     var partes = fechaInput.split('-');
     var y = parseInt(partes[0]), m = parseInt(partes[1]), d = parseInt(partes[2]);
-    var fechaObj = new Date(y, m - 1, d);
+    var fechaObj = new Date(y, m-1, d);
     var dias = ['DOMINGO','LUNES','MARTES','MIÉRCOLES','JUEVES','VIERNES','SÁBADO'];
     var meses = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
     return dias[fechaObj.getDay()] + ' ' + d + ' DE ' + meses[fechaObj.getMonth()];
@@ -156,68 +147,126 @@ function actualizarVisibilidadJugadores() {
 }
 
 // ============================================================
-// ALGORITMO: Round-robin + asignación de pistas equilibrada
+// ALGORITMO PRINCIPAL
 // ============================================================
 function construirCuadro(pistas) {
     var cfg = configPorPistas(pistas);
-    var nRev = cfg.nRev;
-    var nDri = cfg.nDri;
-    var nJornadas = cfg.nJornadas;
+    var nRev = cfg.nRev, nDri = cfg.nDri, nJornadas = cfg.nJornadas;
 
-    var reveses = [];
-    var drives = [];
+    var reveses = [], drives = [];
     for (var i = 0; i < nRev; i++) reveses.push('r' + i);
     for (var i = 0; i < nDri; i++) drives.push('d' + i);
 
-    // ------------------------------------------------------------
-    // 1. Generar parejas por jornada con round-robin modular
-    //    Jornada j: revés i con drive (i + j) % nDri
-    // ------------------------------------------------------------
-    var parejasPorJornada = [];
+    var todos = reveses.concat(drives);
+
+    // ----- 1. Esqueleto: parejas por jornada con round-robin -----
+    // Jornada j → revés i con drive (i + j) % nDri
+    var esqueleto = [];
     for (var j = 0; j < nJornadas; j++) {
         var parejas = [];
         for (var i = 0; i < nRev; i++) {
             parejas.push([reveses[i], drives[(i + j) % nDri]]);
         }
-        parejasPorJornada.push(parejas);
+        esqueleto.push(parejas);
     }
 
-    // ------------------------------------------------------------
-    // 2. Asignar cada pareja a una pista
-    //    Regla: pista = (idxRev + j) % pistas
-    //    Así cada revés (y su drive) pasan por todas las pistas
-    //    de forma equilibrada.
-    // ------------------------------------------------------------
-    var resultado = [];
-    for (var j = 0; j < nJornadas; j++) {
-        // Array de pistas, cada una con sus parejas
-        var pistasArr = [];
-        for (var p = 0; p < pistas; p++) pistasArr.push([]);
+    // ----- 2. Función de coste (coincidencias en pista) -----
+    function contarCoincidencias(asig) {
+        var coinc = {};
+        for (var i = 0; i < todos.length; i++)
+            for (var k = i+1; k < todos.length; k++)
+                coinc[todos[i] + '|' + todos[k]] = 0;
 
-        // Asignar cada pareja a su pista
-        for (var i = 0; i < nRev; i++) {
-            var idxRev = i;
-            var pistaIdx = (idxRev + j) % pistas;
-            pistasArr[pistaIdx].push(parejasPorJornada[j][i]);
-        }
-
-        // Ahora cada pista debe tener exactamente 2 parejas.
-        // Aplanar en formato [pA1, pB1, pA2, pB2, ...]
-        var plana = [];
-        for (var p = 0; p < pistas; p++) {
-            if (pistasArr[p].length !== 2) {
-                // Si por lo que sea no hay 2, rellenamos con lo que haya
-                // Esto no debería pasar, pero por seguridad
-                console.warn('Pista ' + p + ' jornada ' + j + ' tiene ' + pistasArr[p].length + ' parejas');
-            }
-            for (var k = 0; k < pistasArr[p].length; k++) {
-                plana.push(pistasArr[p][k]);
+        for (var j = 0; j < asig.length; j++) {
+            for (var p = 0; p < pistas; p++) {
+                var pA = asig[j][p*2];
+                var pB = asig[j][p*2+1];
+                if (!pA || !pB) continue;
+                var jug = [pA[0], pA[1], pB[0], pB[1]];
+                for (var a = 0; a < 4; a++)
+                    for (var b = a+1; b < 4; b++) {
+                        var x = jug[a], y = jug[b];
+                        var key = x < y ? x+'|'+y : y+'|'+x;
+                        coinc[key]++;
+                    }
             }
         }
-        resultado.push(plana);
+        return coinc;
     }
 
-    return { jornadas: resultado, cfg: cfg };
+    function costeCoincidencias(coinc) {
+        // Penalización cuadrática: (v-1)^2 * 1000 para v >= 2
+        var coste = 0;
+        for (var k in coinc) {
+            var v = coinc[k];
+            if (v > 1) coste += (v-1)*(v-1) * 1000;
+        }
+        return coste;
+    }
+
+    // ----- 3. Asignación inicial aleatoria -----
+    function asignacionAleatoria() {
+        var asig = [];
+        for (var j = 0; j < nJornadas; j++) {
+            var parejas = esqueleto[j].slice();
+            // Barajar
+            for (var i = parejas.length - 1; i > 0; i--) {
+                var k = Math.floor(Math.random() * (i + 1));
+                var tmp = parejas[i]; parejas[i] = parejas[k]; parejas[k] = tmp;
+            }
+            asig.push(parejas);
+        }
+        return asig;
+    }
+
+    // ----- 4. Búsqueda local con reinicios múltiples -----
+    // Ejecutamos varias "rondas" desde puntos de partida distintos
+    // para escapar de mínimos locales.
+    var RONDAS = 5;
+    var INTENTOS_POR_RONDA = 30000;
+
+    var mejorGlobal = null;
+    var mejorCosteGlobal = Infinity;
+
+    for (var ronda = 0; ronda < RONDAS; ronda++) {
+        var actual = asignacionAleatoria();
+        var mejorLocal = actual.map(function(j) { return j.slice(); });
+        var mejorCosteLocal = costeCoincidencias(contarCoincidencias(mejorLocal));
+
+        for (var intento = 0; intento < INTENTOS_POR_RONDA; intento++) {
+            // Copia del mejor local
+            var prueba = mejorLocal.map(function(j) { return j.slice(); });
+
+            // Elegir jornada y dos posiciones
+            var j = Math.floor(Math.random() * nJornadas);
+            var idxA = Math.floor(Math.random() * prueba[j].length);
+            var idxB = Math.floor(Math.random() * prueba[j].length);
+            if (idxA === idxB) continue;
+
+            // Intercambiar
+            var tmp = prueba[j][idxA];
+            prueba[j][idxA] = prueba[j][idxB];
+            prueba[j][idxB] = tmp;
+
+            var c = contarCoincidencias(prueba);
+            var coste = costeCoincidencias(c);
+
+            // Aceptar si mejora (o empatar con probabilidad para escapar de mesetas)
+            if (coste < mejorCosteLocal || (coste === mejorCosteLocal && Math.random() < 0.3)) {
+                mejorCosteLocal = coste;
+                mejorLocal = prueba;
+                if (coste === 0) break; // óptimo alcanzado en esta ronda
+            }
+        }
+
+        if (mejorCosteLocal < mejorCosteGlobal) {
+            mejorCosteGlobal = mejorCosteLocal;
+            mejorGlobal = mejorLocal;
+            if (mejorCosteGlobal === 0) break; // óptimo global
+        }
+    }
+
+    return { jornadas: mejorGlobal, cfg: cfg, coste: mejorCosteGlobal };
 }
 
 // ============================================================
@@ -225,7 +274,6 @@ function construirCuadro(pistas) {
 // ============================================================
 function generarCuadro() {
     try {
-        // Actualizar cabecera
         document.getElementById('dispTorneo').innerText = document.getElementById('inTorneo').value;
         document.getElementById('dispEv').innerText = formatearFecha(document.getElementById('inEvento').value);
         document.getElementById('dispCat').innerText = 'CAT: ' + document.getElementById('inCat').value;
@@ -234,36 +282,39 @@ function generarCuadro() {
         var pistas = parseInt(document.getElementById('inPistas').value);
         var cfg = configPorPistas(pistas);
 
-        // Recoger nombres
         jugadoresGlobal = {};
-        for (var i = 0; i < cfg.nRev; i++) {
+        for (var i = 0; i < cfg.nRev; i++)
             jugadoresGlobal['r' + i] = document.getElementById('r' + i).value.toUpperCase() || ('R' + i);
-        }
-        for (var i = 0; i < cfg.nDri; i++) {
+        for (var i = 0; i < cfg.nDri; i++)
             jugadoresGlobal['d' + i] = document.getElementById('d' + i).value.toUpperCase() || ('D' + i);
+
+        var res = construirCuadro(pistas);
+
+        console.log('Coste de coincidencias:', res.coste);
+        if (res.coste === 0) {
+            console.log('✅ ÓPTIMO: ningún par coincide más de 1 vez en pista.');
+        } else {
+            console.log('ℹ️ Mejor solución encontrada con coste ' + res.coste + '. Cada 1000 puntos = un par coincidiendo 2 veces de más.');
         }
 
-        // Construir el cuadro
-        var res = construirCuadro(pistas);
         var jornadas = res.jornadas;
 
-        // Renderizar
         partidosData = [];
         var html = '';
 
         for (var idx = 0; idx < jornadas.length; idx++) {
             var parejas = jornadas[idx];
-            html += '<div class="ronda-card"><div class="ronda-header">JORNADA ' + (idx + 1) + '</div>';
+            html += '<div class="ronda-card"><div class="ronda-header">JORNADA ' + (idx+1) + '</div>';
 
             for (var pi = 0; pi < pistas; pi++) {
-                var pA = parejas[pi * 2];
-                var pB = parejas[pi * 2 + 1];
+                var pA = parejas[pi*2];
+                var pB = parejas[pi*2+1];
                 if (!pA || !pB) continue;
                 var id = 'j' + idx + 'p' + pi;
                 partidosData.push({ id: id, jA: pA, jB: pB, sA: 0, sB: 0 });
 
                 html += '<div class="pista-box">';
-                html += '<span class="pista-label">PISTA ' + (pi + 1) + '</span>';
+                html += '<span class="pista-label">PISTA ' + (pi+1) + '</span>';
                 html += '<div class="match-row">';
                 html += '<div class="pareja-box">';
                 html += '<span class="p-reves">' + jugadoresGlobal[pA[0]] + '</span>';
@@ -345,7 +396,7 @@ function actualizarRanking() {
         var j = lista[i];
         html += '<div class="rank-item">';
         html += '<div class="rank-info">';
-        html += '<span class="rank-pos">' + (i + 1) + '</span>';
+        html += '<span class="rank-pos">' + (i+1) + '</span>';
         html += '<span class="rank-name">' + j.nombre + '</span>';
         html += '</div>';
         html += '<div class="rank-stats">';

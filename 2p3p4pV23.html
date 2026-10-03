@@ -222,9 +222,8 @@
         <div style="margin-bottom: 15px;">
             <div class="column-label" style="text-align:left; margin-bottom:6px;">FORMATO DEL TORNEO</div>
             <select id="inPistas" onchange="actualizarVisibilidadJugadores()">
-                < styleoption value="2" selected>2=" PISTAS · 8 JdisplayUGADORES (4 revés:n + 4 drive)</option>
-                <optionone value="3">3 PISTAS ·;">
- 12 JUGADORES (6 revés + 6 drive)</option>
+                <option value="2" selected>2 PISTAS · 8 JUGADORES (4 revés + 4 drive)</option>
+                <option value="3">3 PISTAS · 12 JUGADORES (6 revés + 6 drive)</option>
                 <option value="4">4 PISTAS · 16 JUGADORES (8 revés + 8 drive)</option>
             </select>
         </div>
@@ -239,7 +238,8 @@
                 <input type="text" class="in-reves" id="r4" value="9" style="display:none;">
                 <input type="text" class="in-reves" id="r5" value="11" style="display:none;">
                 <input type="text" class="in-reves" id="r6" value="13" style="display:none;">
-                <input type="text" class="in-reves" id="r7" value="15"            </div>
+                <input type="text" class="in-reves" id="r7" value="15" style="display:none;">
+            </div>
             <div>
                 <div class="column-label">DRIVES</div>
                 <input type="text" class="in-drive" id="d0" value="2">
@@ -274,7 +274,7 @@
     let partidosData = [];
     let jugadoresGlobal = {};
 
-    const N_JORNADAS = 4; // SIEMPRE 4 jornadas
+    const N_JORNADAS = 4;
 
     // ============================================================
     // CONFIGURACIÓN SEGÚN PISTAS
@@ -287,9 +287,13 @@
     }
 
     function actualizarVisibilidadJugadores() {
-        const pistas = parseInt(document.getElementById('inPistas').value);
+        const select = document.getElementById('inPistas');
+        const pistas = parseInt(select.value);
         const cfg = configPorPistas(pistas);
 
+        console.log('Cambio de formato a:', pistas, 'pistas →', cfg.nJug, 'jugadores');
+
+        // Mostrar/ocultar inputs según configuración
         for (let i = 0; i < 8; i++) {
             const r = document.getElementById(`r${i}`);
             const d = document.getElementById(`d${i}`);
@@ -311,6 +315,7 @@
         return `${dias[fechaObj.getDay()]} ${parseInt(d)} DE ${meses[fechaObj.getMonth()]}`;
     }
 
+    // Inicialización
     window.addEventListener('DOMContentLoaded', () => {
         const hoy = new Date().toISOString().split('T')[0];
         document.getElementById('inEvento').value = hoy;
@@ -331,20 +336,14 @@
         for (let i = 0; i < nRev; i++) reveses.push(`r${i}`);
         for (let i = 0; i < nDri; i++) drives.push(`d${i}`);
 
-        // Parejas posibles revés+drive
         const parejasTodas = [];
         for (const r of reveses)
             for (const d of drives)
                 parejasTodas.push([r, d]);
 
-        // Parejas por jornada = pistas × 2
         const parejasPorJornada = pistas * 2;
 
-        // ============================================================
-        // GENERAR CANDIDATO
-        // ============================================================
         function generarCandidato() {
-            // Barajar parejas
             const parejas = [...parejasTodas];
             for (let i = parejas.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -375,54 +374,38 @@
             return jornadas;
         }
 
-        // ============================================================
-        // FUNCIÓN DE COSTE
-        // ============================================================
         function calcularCoste(jornadas) {
             let coste = 0;
             const todos = [...reveses, ...drives];
 
-            // 1. Revés↔Drive: equidad en el reparto
+            // 1. Revés↔Drive
             const cruces = {};
             reveses.forEach(r => drives.forEach(d => cruces[r + '-' + d] = 0));
             jornadas.forEach(j => j.forEach(p => { cruces[p[0] + '-' + p[1]]++; }));
 
-            // Nº de veces que cada revés juega partidos = nJornadas
-            // Nº de drives distintos con los que puede jugar = min(nJornadas, nDri)
-            // Ideal: cada revés juega con drives distintos, y el reparto total entre drives es equitativo
             const vecesPorPar = Object.values(cruces);
             const maxV = Math.max(...vecesPorPar);
             const minV = Math.min(...vecesPorPar);
             coste += (maxV - minV) * 100;
-
-            // Cada revés debe jugar con drives DISTINTOS (no repetir drive con mismo revés)
-            // Penalizar cualquier cruce > 1
             vecesPorPar.forEach(v => {
                 if (v > 1) coste += (v - 1) * 200;
             });
 
-            // Equidad entre drives: cada drive debe ser usado un nº similar de veces
             const usoDrives = {};
             drives.forEach(d => usoDrives[d] = 0);
             jornadas.forEach(j => j.forEach(p => { usoDrives[p[1]]++; }));
             const valoresUsoD = Object.values(usoDrives);
-            const maxUD = Math.max(...valoresUsoD);
-            const minUD = Math.min(...valoresUsoD);
-            coste += (maxUD - minUD) * 80;
+            coste += (Math.max(...valoresUsoD) - Math.min(...valoresUsoD)) * 80;
 
-            // Equidad entre reveses
             const usoReveses = {};
             reveses.forEach(r => usoReveses[r] = 0);
             jornadas.forEach(j => j.forEach(p => { usoReveses[p[0]]++; }));
             const valoresUsoR = Object.values(usoReveses);
-            const maxUR = Math.max(...valoresUsoR);
-            const minUR = Math.min(...valoresUsoR);
-            coste += (maxUR - minUR) * 80;
+            coste += (Math.max(...valoresUsoR) - Math.min(...valoresUsoR)) * 80;
 
-            // 2. Pistas por jugador: equidad
+            // 2. Pistas por jugador
             const pistasPorJug = {};
             todos.forEach(j => pistasPorJug[j] = Array(pistas).fill(0));
-            // Distribuir parejas en pistas (asignación aleatoria controlada)
             jornadas.forEach(j => {
                 const parejas = [...j];
                 for (let i = parejas.length - 1; i > 0; i--) {
@@ -436,9 +419,7 @@
                 });
             });
             Object.values(pistasPorJug).forEach(arr => {
-                const max = Math.max(...arr);
-                const min = Math.min(...arr);
-                coste += (max - min) * 40;
+                coste += (Math.max(...arr) - Math.min(...arr)) * 40;
             });
 
             // 3. Coincidencias en pista
@@ -470,17 +451,12 @@
 
             const valores = Object.values(coinc);
             if (valores.length > 0) {
-                const maxC = Math.max(...valores);
-                const minC = Math.min(...valores);
-                coste += (maxC - minC) * 20;
+                coste += (Math.max(...valores) - Math.min(...valores)) * 20;
             }
 
             return coste;
         }
 
-        // ============================================================
-        // MONTE CARLO
-        // ============================================================
         let mejor = null, mejorCoste = Infinity;
         const INTENTOS = 50000;
         for (let i = 0; i < INTENTOS; i++) {

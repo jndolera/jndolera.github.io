@@ -335,7 +335,7 @@ function generarCuadro() {
 }
 
 // ============================================================
-// COMPARTIR COMO IMAGEN - ESCALA 1.5
+// COMPARTIR COMO IMAGEN - ANCHO AJUSTADO AL NOMBRE MÁS LARGO REAL
 // ============================================================
 function compartirCuadro() {
     try {
@@ -353,7 +353,7 @@ function compartirCuadro() {
         }
 
         // ============================================================
-        // FACTOR DE ESCALA GLOBAL (150% más grande)
+        // ESCALA GLOBAL
         // ============================================================
         var E = 1.5;
 
@@ -370,10 +370,10 @@ function compartirCuadro() {
         var fJugador      = 'bold ' + Math.round(50 * E) + 'px Arial, sans-serif';
         var fVS           = 'bold ' + Math.round(30 * E) + 'px Arial, sans-serif';
 
-        var hCabecera        = Math.round(190 * E);
-        var hListaJugadores  = Math.round(140 * E);
-        var hTituloJornada   = Math.round(65 * E);
-        var hPista           = Math.round(145 * E);
+        var hCabecera       = Math.round(190 * E);
+        var hListaJugadores = Math.round(140 * E);
+        var hTituloJornada  = Math.round(65 * E);
+        var hPista          = Math.round(145 * E);
 
         // ============================================================
         // MEDICIÓN
@@ -383,8 +383,22 @@ function compartirCuadro() {
         canvasMedida.height = 300;
         var ctxM = canvasMedida.getContext('2d');
 
+        // Nombre más largo real
+        var nombreMasLargo = '';
+        for (var id in jugadoresGlobal) {
+            var n = jugadoresGlobal[id];
+            if (n && n.length > nombreMasLargo.length) nombreMasLargo = n;
+        }
+
         ctxM.font = fJugador;
-        var anchoNombreMax = ctxM.measureText('WWWWWWWWW').width;
+        var anchoNombreReal = ctxM.measureText(nombreMasLargo).width;
+
+        // Margen del 15% por si meten uno más largo
+        var anchoNombreMax = anchoNombreReal * 1.15;
+
+        // Mínimo razonable: al menos 4 caracteres de ancho
+        var anchoMinimo = ctxM.measureText('WWWW').width;
+        if (anchoNombreMax < anchoMinimo) anchoNombreMax = anchoMinimo;
 
         ctxM.font = fTitulo;
         var anchoTitulo = ctxM.measureText(torneo.toUpperCase()).width;
@@ -415,7 +429,7 @@ function compartirCuadro() {
         var textoDrives = listaDrives.join('  ·  ');
 
         ctxM.font = fListaTitulo;
-        var anchoListaTitulo = ctxM.measureText('REVÉS:').width + 15;
+        var anchoListaTitulo = ctxM.measureText('REVÉS:').width + Math.round(15 * E);
         ctxM.font = fListaJugador;
         var anchoListaMax = Math.max(
             ctxM.measureText(textoReveses).width,
@@ -425,6 +439,7 @@ function compartirCuadro() {
         ctxM.font = fVS;
         var anchoVS = ctxM.measureText('VS').width;
 
+        // Ancho de una pista
         var anchoPista = padding + anchoNombreMax + separacionCentro + anchoVS + separacionCentro + anchoNombreMax + padding;
         var anchoCabecera = Math.max(anchoTitulo, anchoBadges) + padding * 2;
         var anchoListaBloque = anchoListaMax + padding * 2;
@@ -432,11 +447,14 @@ function compartirCuadro() {
         var ancho = Math.ceil(Math.max(anchoCabecera, anchoListaBloque, anchoPista));
         ancho = Math.ceil(ancho / 10) * 10;
 
-        console.log('Ancho calculado:', ancho, 'px (escala x' + E + ')');
+        console.log('=== MEDICIÓN ===');
+        console.log('Nombre más largo:', nombreMasLargo, '(' + nombreMasLargo.length + ' caracteres)');
+        console.log('Ancho real del nombre:', Math.ceil(anchoNombreReal));
+        console.log('Ancho con margen 15%:', Math.ceil(anchoNombreMax));
+        console.log('Ancho final del canvas:', ancho, 'px');
         console.log('  Cabecera:', Math.ceil(anchoCabecera));
         console.log('  Lista:', Math.ceil(anchoListaBloque));
         console.log('  Pista:', Math.ceil(anchoPista));
-        console.log('  Nombre max:', Math.ceil(anchoNombreMax));
 
         // ============================================================
         // ALTURA
@@ -574,7 +592,7 @@ function compartirCuadro() {
 
                     var separacionVertical = Math.round(26 * E);
 
-                    // Pareja A
+                    // Pareja A: alineada a la derecha del centro - sepCentro
                     var xA = centroX - separacionCentro;
                     ctx.textAlign = 'right';
                     ctx.textBaseline = 'middle';
@@ -587,14 +605,14 @@ function compartirCuadro() {
                     ctx.font = fJugador;
                     ctx.fillText(pA[1] ? pA[1].innerText : '', xA, filaY + separacionVertical);
 
-                    // VS
+                    // VS centro
                     ctx.fillStyle = '#cccccc';
                     ctx.font = fVS;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillText('VS', centroX, filaY);
 
-                    // Pareja B
+                    // Pareja B: alineada a la izquierda del centro + sepCentro
                     var xB = centroX + separacionCentro;
                     ctx.textAlign = 'left';
 

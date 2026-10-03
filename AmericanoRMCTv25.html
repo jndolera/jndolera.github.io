@@ -641,4 +641,185 @@ function compartirCuadro() {
             for (var i = 0; i < mitad; i++) {
                 jornadas1.push({ elemento: jornadas[i], numero: i + 1 });
             }
-            var altura1 = padding + alturaCabeceraLista + (jorn
+            var altura1 = padding + alturaCabeceraLista + (jornadas1.length * alturaUnaJornada) + padding;
+
+            var canvas1 = document.createElement('canvas');
+            canvas1.width = ancho;
+            canvas1.height = altura1;
+            var ctx1 = canvas1.getContext('2d');
+            ctx1.fillStyle = '#f4f7fb';
+            ctx1.fillRect(0, 0, ancho, altura1);
+
+            var y1 = padding;
+            y1 = dibujarCabeceraYLista(ctx1, y1, true, true);
+            y1 = dibujarJornadas(ctx1, jornadas1, y1);
+
+            exportarCanvas(canvas1, torneo, 'cuadro-americano-parte1.png');
+
+            // Segunda imagen
+            var jornadas2 = [];
+            for (var i = mitad; i < jornadas.length; i++) {
+                jornadas2.push({ elemento: jornadas[i], numero: i + 1 });
+            }
+            var altura2 = padding + 80 + (jornadas2.length * alturaUnaJornada) + padding;
+
+            var canvas2 = document.createElement('canvas');
+            canvas2.width = ancho;
+            canvas2.height = altura2;
+            var ctx2 = canvas2.getContext('2d');
+            ctx2.fillStyle = '#f4f7fb';
+            ctx2.fillRect(0, 0, ancho, altura2);
+
+            var y2 = padding;
+            ctx2.fillStyle = '#001b3d';
+            roundRect(ctx2, padding, y2, ancho - padding*2, 60, 14);
+            ctx2.fill();
+            ctx2.fillStyle = '#ffffff';
+            ctx2.font = fuenteJornada;
+            ctx2.textAlign = 'center';
+            ctx2.textBaseline = 'middle';
+            ctx2.fillText(torneo.toUpperCase() + ' · CONTINUACIÓN', ancho/2, y2 + 30);
+            y2 += 60 + espacioEntreBloques;
+
+            y2 = dibujarJornadas(ctx2, jornadas2, y2);
+
+            setTimeout(function() {
+                exportarCanvas(canvas2, torneo, 'cuadro-americano-parte2.png');
+            }, 900);
+        }
+
+    } catch (err) {
+        console.error('Error generando imagen:', err);
+        alert('Error generando la imagen: ' + err.message);
+    }
+}
+
+// ============================================================
+// EXPORTAR CANVAS
+// ============================================================
+function exportarCanvas(canvas, torneo, nombreArchivo) {
+    canvas.toBlob(function(blob) {
+        var archivo = new File([blob], nombreArchivo, { type: 'image/png' });
+
+        if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
+            navigator.share({
+                files: [archivo],
+                title: 'Cuadro Americano',
+                text: 'Cuadro del torneo: ' + torneo
+            }).catch(function(err) {
+                if (err.name !== 'AbortError') {
+                    descargarImagen(blob);
+                }
+            });
+        } else {
+            descargarImagen(blob);
+        }
+    }, 'image/png');
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+}
+
+function descargarImagen(blob) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = a.download = 'cuadro.png';
+    a.download = 'cuadro-americano.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+}
+
+// ============================================================
+// REGISTRAR RESULTADO
+// ============================================================
+function registrar(id) {
+    var p = null;
+    for (var i = 0; i < partidosData.length; i++) {
+        if (partidosData[i].id === id) { p = partidosData[i]; break; }
+    }
+    if (!p) return;
+    p.sA = parseInt(document.getElementById('scA_' + id).value) || 0;
+    p.sB = parseInt(document.getElementById('scB_' + id).value) || 0;
+    actualizarRanking();
+}
+
+// ============================================================
+// RANKING
+// ============================================================
+function actualizarRanking() {
+    var globalStats = {};
+    for (var id in jugadoresGlobal) {
+        globalStats[id] = { nombre: jugadoresGlobal[id], vic: 0, dif: 0 };
+    }
+
+    for (var i = 0; i < partidosData.length; i++) {
+        var p = partidosData[i];
+        if (p.sA === 0 && p.sB === 0) continue;
+        var difA = p.sA - p.sB;
+        var difB = p.sB - p.sA;
+
+        for (var a = 0; a < p.jA.length; a++) {
+            var jugID = p.jA[a];
+            if (p.sA > p.sB) globalStats[jugID].vic++;
+            globalStats[jugID].dif += difA;
+        }
+        for (var b = 0; b < p.jB.length; b++) {
+            var jugID = p.jB[b];
+            if (p.sB > p.sA) globalStats[jugID].vic++;
+            globalStats[jugID].dif += difB;
+        }
+    }
+
+    var lista = [];
+    for (var id in globalStats) lista.push(globalStats[id]);
+    lista.sort(function(a, b) {
+        if (b.vic !== a.vic) return b.vic - a.vic;
+        return b.dif - a.dif;
+    });
+
+    var html = '';
+    for (var i = 0; i < lista.length; i++) {
+        var j = lista[i];
+        html += '<div class="rank-item">';
+        html += '<div class="rank-info">';
+        html += '<span class="rank-pos">' + (i+1) + '</span>';
+        html += '<span class="rank-name">' + j.nombre + '</span>';
+        html += '</div>';
+        html += '<div class="rank-stats">';
+        html += '<span style="color:var(--rmct-blue)">' + j.vic + 'V</span>';
+        html += '<span style="color:#666">| ' + (j.dif > 0 ? '+' + j.dif : j.dif) + '</span>';
+        html += '</div></div>';
+    }
+    document.getElementById('ranking').innerHTML = html;
+}
+
+// ============================================================
+// INICIALIZACIÓN
+// ============================================================
+window.addEventListener('DOMContentLoaded', function() {
+    var hoy = new Date();
+    var y = hoy.getFullYear();
+    var m = String(hoy.getMonth() + 1).padStart(2, '0');
+    var d = String(hoy.getDate()).padStart(2, '0');
+    document.getElementById('inEvento').value = y + '-' + m + '-' + d;
+    document.getElementById('dispEv').innerText = formatearFecha(y + '-' + m + '-' + d);
+    actualizarVisibilidadJugadores();
+});
+</script>
+
+</body>
+</html>

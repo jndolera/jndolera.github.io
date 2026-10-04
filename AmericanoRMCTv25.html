@@ -157,7 +157,12 @@ function actualizarVisibilidadJugadores() {
 }
 
 // ============================================================
-// ALGORITMO
+// ALGORITMO MEJORADO
+// Prioridades:
+//  1. Revés↔Drive: cada revés juega con cada drive al menos 1 vez
+//  2. Coincidencias: ningún par coincide más de 2 veces en pista
+//  3. Revés↔Revés: todos los reveses se enfrentan al menos 1 vez (como rivales)
+//  4. Drive↔Drive: todos los drives se enfrentan al menos 1 vez (como rivales)
 // ============================================================
 function construirCuadro(pistas) {
     var cfg = configPorPistas(pistas);
@@ -169,20 +174,78 @@ function construirCuadro(pistas) {
 
     var todos = reveses.concat(drives);
 
-    var esqueleto = [];
-    for (var j = 0; j < nJornadas; j++) {
-        var parejas = [];
-        for (var i = 0; i < nRev; i++) {
-            parejas.push([reveses[i], drives[(i + j) % nDri]]);
+    // Generar todas las parejas posibles revés+drive
+    var parejasTodas = [];
+    for (var i = 0; i < reveses.length; i++) {
+        for (var j = 0; j < drives.length; j++) {
+            parejasTodas.push([reveses[i], drives[j]]);
         }
-        esqueleto.push(parejas);
     }
 
-    function contarCoincidencias(asig) {
+    // ============================================================
+    // GENERAR ASIGNACIÓN ALEATORIA
+    // ============================================================
+    function asignacionAleatoria() {
+        // Barajar parejas
+        var parejas = parejasTodas.slice();
+        for (var i = parejas.length - 1; i > 0; i--) {
+            var k = Math.floor(Math.random() * (i + 1));
+            var tmp = parejas[i]; parejas[i] = parejas[k]; parejas[k] = tmp;
+        }
+
+        // Repartir en jornadas
+        var asig = [];
+        var usadas = {};
+        var parejasPorJornada = pistas * 2;
+
+        for (var j = 0; j < nJornadas; j++) {
+            var usadosJornada = {};
+            var parejasJornada = [];
+
+            // Recorrer todas las parejas buscando las que no repitan jugador en la jornada
+            for (var k = 0; k < parejas.length; k++) {
+                if (parejasJornada.length >= parejasPorJornada) break;
+                var p = parejas[k];
+                var key = p[0] + '-' + p[1];
+                if (usadas[key]) continue;
+                if (usadosJornada[p[0]] || usadosJornada[p[1]]) continue;
+                parejasJornada.push(p);
+                usadosJornada[p[0]] = true;
+                usadosJornada[p[1]] = true;
+                usadas[key] = true;
+            }
+
+            if (parejasJornada.length < parejasPorJornada) return null;
+
+            // Barajar el orden de las parejas dentro de la jornada
+            // para que las pistas no sean siempre las mismas
+            for (var i = parejasJornada.length - 1; i > 0; i--) {
+                var k = Math.floor(Math.random() * (i + 1));
+                var tmp = parejasJornada[i]; parejasJornada[i] = parejasJornada[k]; parejasJornada[k] = tmp;
+            }
+
+            asig.push(parejasJornada);
+        }
+        return asig;
+    }
+
+    // ============================================================
+    // COSTE
+    // ============================================================
+    function calcularCoste(asig) {
+        var coste = 0;
+
+        // --- 1. Coincidencias en pista (máximo 2 por par) ---
         var coinc = {};
         for (var i = 0; i < todos.length; i++)
             for (var k = i+1; k < todos.length; k++)
                 coinc[todos[i] + '|' + todos[k]] = 0;
+
+        // Registro de rivales (para revés-revés y drive-drive)
+        var rivales = {};
+        for (var i = 0; i < todos.length; i++)
+            for (var k = i+1; k < todos.length; k++)
+                rivales[todos[i] + '|' + todos[k]] = 0;
 
         for (var j = 0; j < asig.length; j++) {
             for (var p = 0; p < pistas; p++) {
@@ -196,46 +259,91 @@ function construirCuadro(pistas) {
                         var key = x < y ? x+'|'+y : y+'|'+x;
                         coinc[key]++;
                     }
+                // Rivales directos: pA[0] vs pB[0], pA[0] vs pB[1], etc.
+                var crucesRivales = [
+                    [pA[0], pB[0]], [pA[0], pB[1]],
+                    [pA[1], pB[0]], [pA[1], pB[1]]
+                ];
+                for (var r = 0; r < crucesRivales.length; r++) {
+                    var x = crucesRivales[r][0], y = crucesRivales[r][1];
+                    var key = x < y ? x+'|'+y : y+'|'+x;
+                    rivales[key]++;
+                }
             }
         }
-        return coinc;
-    }
 
-    function costeCoincidencias(coinc) {
-        var coste = 0;
+        // Penalizar pares con 3+ coincidencias (duro)
         for (var k in coinc) {
             var v = coinc[k];
-            if (v > 1) coste += (v-1)*(v-1) * 1000;
+            if (v >= 3) coste += (v - 2) * 5000;
         }
+
+        // --- 2. Revés↔Revés: cada par de reveses debe enfrentarse al menos 1 vez ---
+        for (var i = 0; i < reveses.length; i++) {
+            for (var k = i+1; k < reveses.length; k++) {
+                var key = reveses[i] + '|' + reveses[k];
+                var rev = rivales[key] || 0;
+                // Contar también coincidencias en pista (rivales + compañeros)
+                var co = coinc[key] || 0;
+                if (rev === 0) coste += 800;   // nunca se enfrentan
+            }
+        }
+
+        // --- 3. Drive↔Drive: cada par de drives debe enfrentarse al menos 1 vez ---
+        for (var i = 0; i < drives.length; i++) {
+            for (var k = i+1; k < drives.length; k++) {
+                var key = drives[i] + '|' + drives[k];
+                var rev = rivales[key] || 0;
+                if (rev === 0) coste += 800;
+            }
+        }
+
+        // --- 4. Revés↔Drive: cada revés con cada drive al menos 1 vez ---
+        for (var i = 0; i < reveses.length; i++) {
+            for (var k = 0; k < drives.length; k++) {
+                var rev = reveses[i], dri = drives[k];
+                // Buscar en qué jornadas jugaron juntos
+                var juntos = 0;
+                for (var j = 0; j < asig.length; j++) {
+                    for (var p = 0; p < asig[j].length; p++) {
+                        var par = asig[j][p];
+                        if ((par[0] === rev && par[1] === dri) ||
+                            (par[0] === dri && par[1] === rev)) {
+                            juntos++;
+                        }
+                    }
+                }
+                if (juntos === 0) coste += 400;   // no jugaron juntos
+                if (juntos > 1) coste += (juntos - 1) * 200; // repetir no es óptimo
+            }
+        }
+
         return coste;
     }
 
-    function asignacionAleatoria() {
-        var asig = [];
-        for (var j = 0; j < nJornadas; j++) {
-            var parejas = esqueleto[j].slice();
-            for (var i = parejas.length - 1; i > 0; i--) {
-                var k = Math.floor(Math.random() * (i + 1));
-                var tmp = parejas[i]; parejas[i] = parejas[k]; parejas[k] = tmp;
-            }
-            asig.push(parejas);
-        }
-        return asig;
-    }
-
-    var RONDAS = 5;
-    var INTENTOS_POR_RONDA = 30000;
+    // ============================================================
+    // BÚSQUEDA LOCAL
+    // ============================================================
     var mejorGlobal = null;
     var mejorCosteGlobal = Infinity;
+    var RONDAS = 8;
+    var INTENTOS_POR_RONDA = 40000;
 
     for (var ronda = 0; ronda < RONDAS; ronda++) {
         var actual = asignacionAleatoria();
+        if (!actual) continue;
+
         var mejorLocal = actual.map(function(j) { return j.slice(); });
-        var mejorCosteLocal = costeCoincidencias(contarCoincidencias(mejorLocal));
+        var mejorCosteLocal = calcularCoste(mejorLocal);
 
         for (var intento = 0; intento < INTENTOS_POR_RONDA; intento++) {
+            // Copia
             var prueba = mejorLocal.map(function(j) { return j.slice(); });
+
+            // Elegir jornada
             var j = Math.floor(Math.random() * nJornadas);
+
+            // Elegir 2 parejas de esa jornada e intercambiarlas
             var idxA = Math.floor(Math.random() * prueba[j].length);
             var idxB = Math.floor(Math.random() * prueba[j].length);
             if (idxA === idxB) continue;
@@ -244,10 +352,9 @@ function construirCuadro(pistas) {
             prueba[j][idxA] = prueba[j][idxB];
             prueba[j][idxB] = tmp;
 
-            var c = contarCoincidencias(prueba);
-            var coste = costeCoincidencias(c);
+            var coste = calcularCoste(prueba);
 
-            if (coste < mejorCosteLocal || (coste === mejorCosteLocal && Math.random() < 0.3)) {
+            if (coste < mejorCosteLocal) {
                 mejorCosteLocal = coste;
                 mejorLocal = prueba;
                 if (coste === 0) break;
@@ -285,6 +392,11 @@ function generarCuadro() {
 
         var res = construirCuadro(pistas);
         console.log('Coste de coincidencias:', res.coste);
+
+        if (!res.jornadas) {
+            alert('No se pudo generar un cuadro válido. Prueba de nuevo.');
+            return;
+        }
 
         var jornadas = res.jornadas;
         partidosData = [];
@@ -335,7 +447,7 @@ function generarCuadro() {
 }
 
 // ============================================================
-// COMPARTIR COMO IMAGEN - ANCHO AJUSTADO AL NOMBRE MÁS LARGO REAL
+// COMPARTIR COMO IMAGEN
 // ============================================================
 function compartirCuadro() {
     try {
@@ -352,9 +464,6 @@ function compartirCuadro() {
             return;
         }
 
-        // ============================================================
-        // ESCALA GLOBAL
-        // ============================================================
         var E = 1.5;
 
         var padding = Math.round(20 * E);
@@ -375,15 +484,11 @@ function compartirCuadro() {
         var hTituloJornada  = Math.round(65 * E);
         var hPista          = Math.round(145 * E);
 
-        // ============================================================
-        // MEDICIÓN
-        // ============================================================
         var canvasMedida = document.createElement('canvas');
         canvasMedida.width = 3000;
         canvasMedida.height = 300;
         var ctxM = canvasMedida.getContext('2d');
 
-        // Nombre más largo real
         var nombreMasLargo = '';
         for (var id in jugadoresGlobal) {
             var n = jugadoresGlobal[id];
@@ -392,11 +497,7 @@ function compartirCuadro() {
 
         ctxM.font = fJugador;
         var anchoNombreReal = ctxM.measureText(nombreMasLargo).width;
-
-        // Margen del 15% por si meten uno más largo
         var anchoNombreMax = anchoNombreReal * 1.15;
-
-        // Mínimo razonable: al menos 4 caracteres de ancho
         var anchoMinimo = ctxM.measureText('WWWW').width;
         if (anchoNombreMax < anchoMinimo) anchoNombreMax = anchoMinimo;
 
@@ -439,7 +540,6 @@ function compartirCuadro() {
         ctxM.font = fVS;
         var anchoVS = ctxM.measureText('VS').width;
 
-        // Ancho de una pista
         var anchoPista = padding + anchoNombreMax + separacionCentro + anchoVS + separacionCentro + anchoNombreMax + padding;
         var anchoCabecera = Math.max(anchoTitulo, anchoBadges) + padding * 2;
         var anchoListaBloque = anchoListaMax + padding * 2;
@@ -447,18 +547,8 @@ function compartirCuadro() {
         var ancho = Math.ceil(Math.max(anchoCabecera, anchoListaBloque, anchoPista));
         ancho = Math.ceil(ancho / 10) * 10;
 
-        console.log('=== MEDICIÓN ===');
-        console.log('Nombre más largo:', nombreMasLargo, '(' + nombreMasLargo.length + ' caracteres)');
-        console.log('Ancho real del nombre:', Math.ceil(anchoNombreReal));
-        console.log('Ancho con margen 15%:', Math.ceil(anchoNombreMax));
-        console.log('Ancho final del canvas:', ancho, 'px');
-        console.log('  Cabecera:', Math.ceil(anchoCabecera));
-        console.log('  Lista:', Math.ceil(anchoListaBloque));
-        console.log('  Pista:', Math.ceil(anchoPista));
+        console.log('Ancho final:', ancho, 'px');
 
-        // ============================================================
-        // ALTURA
-        // ============================================================
         var alturaJornada = hTituloJornada + 8 + (cfg.pistas * hPista) + separacionBloques;
         var alturaTotal = padding
             + hCabecera + separacionBloques
@@ -466,9 +556,6 @@ function compartirCuadro() {
             + (jornadasDOM.length * alturaJornada)
             + padding;
 
-        // ============================================================
-        // CANVAS
-        // ============================================================
         var canvas = document.createElement('canvas');
         canvas.width = ancho;
         canvas.height = alturaTotal;
@@ -479,7 +566,7 @@ function compartirCuadro() {
 
         var y = padding;
 
-        // ---- CABECERA ----
+        // CABECERA
         ctx.fillStyle = '#ffffff';
         roundRect(ctx, padding, y, ancho - padding*2, hCabecera, 22);
         ctx.fill();
@@ -521,7 +608,7 @@ function compartirCuadro() {
 
         y += hCabecera + separacionBloques;
 
-        // ---- LISTA DE JUGADORES ----
+        // LISTA DE JUGADORES
         ctx.fillStyle = '#ffffff';
         roundRect(ctx, padding, y, ancho - padding*2, hListaJugadores, 22);
         ctx.fill();
@@ -551,7 +638,7 @@ function compartirCuadro() {
 
         y += hListaJugadores + separacionBloques;
 
-        // ---- JORNADAS ----
+        // JORNADAS
         for (var idx = 0; idx < jornadasDOM.length; idx++) {
             var ronda = jornadasDOM[idx];
 
@@ -592,7 +679,6 @@ function compartirCuadro() {
 
                     var separacionVertical = Math.round(26 * E);
 
-                    // Pareja A: alineada a la derecha del centro - sepCentro
                     var xA = centroX - separacionCentro;
                     ctx.textAlign = 'right';
                     ctx.textBaseline = 'middle';
@@ -605,14 +691,12 @@ function compartirCuadro() {
                     ctx.font = fJugador;
                     ctx.fillText(pA[1] ? pA[1].innerText : '', xA, filaY + separacionVertical);
 
-                    // VS centro
                     ctx.fillStyle = '#cccccc';
                     ctx.font = fVS;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillText('VS', centroX, filaY);
 
-                    // Pareja B: alineada a la izquierda del centro + sepCentro
                     var xB = centroX + separacionCentro;
                     ctx.textAlign = 'left';
 
